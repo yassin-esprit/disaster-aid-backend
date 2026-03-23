@@ -1,8 +1,8 @@
-package tn.esprit.disasteraidbackend.User.IdentityAccess.Services;
+package tn.esprit.disasteraidbackend.modules.identity.Services;
 
 import org.springframework.stereotype.Service;
-import tn.esprit.disasteraidbackend.User.IdentityAccess.Entities.User;
-import tn.esprit.disasteraidbackend.User.IdentityAccess.Repositories.UserRepository;
+import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
+import tn.esprit.disasteraidbackend.modules.identity.Repositories.UserRepository;
 
 import java.util.List;
 

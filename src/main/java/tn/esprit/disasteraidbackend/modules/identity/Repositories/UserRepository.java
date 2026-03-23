@@ -1,7 +1,7 @@
-package tn.esprit.disasteraidbackend.User.IdentityAccess.Repositories;
+package tn.esprit.disasteraidbackend.modules.identity.Repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import tn.esprit.disasteraidbackend.User.IdentityAccess.Entities.User;
+import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
 
 import java.util.Optional;
 

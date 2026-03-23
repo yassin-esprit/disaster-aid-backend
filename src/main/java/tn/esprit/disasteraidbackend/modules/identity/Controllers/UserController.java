@@ -1,8 +1,8 @@
-package tn.esprit.disasteraidbackend.User.IdentityAccess.Controllers;
+package tn.esprit.disasteraidbackend.modules.identity.Controllers;
 
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.disasteraidbackend.User.IdentityAccess.Entities.User;
-import tn.esprit.disasteraidbackend.User.IdentityAccess.Services.UserService;
+import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
+import tn.esprit.disasteraidbackend.modules.identity.Services.UserService;
 
 import java.util.List;
 

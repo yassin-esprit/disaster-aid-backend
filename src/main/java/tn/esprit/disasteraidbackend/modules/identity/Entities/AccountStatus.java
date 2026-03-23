@@ -1,4 +1,4 @@
-package tn.esprit.disasteraidbackend.User.IdentityAccess.Entities;
+package tn.esprit.disasteraidbackend.modules.identity.Entities;
 
 public enum AccountStatus {
     ACTIVE,
