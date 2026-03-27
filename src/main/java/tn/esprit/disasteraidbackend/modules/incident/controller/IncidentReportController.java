@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.common.ApiResponse;
-import tn.esprit.disasteraidbackend.modules.incident.entity.IncidentReport;
+import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentReportRequestDto;
+import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentReportResponseDto;
 import tn.esprit.disasteraidbackend.modules.incident.service.IncidentReportService;
 
 import java.util.List;
@@ -17,25 +18,26 @@ public class IncidentReportController {
     private final IncidentReportService service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<List<IncidentReport>>> getAll() {
+    public ResponseEntity<ApiResponse<List<IncidentReportResponseDto>>> getAll() {
         return ResponseEntity.ok(ApiResponse.ok(service.getAll()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<IncidentReport>> getById(@PathVariable Integer id) {
+    public ResponseEntity<ApiResponse<IncidentReportResponseDto>> getById(@PathVariable Integer id) {
         return ResponseEntity.ok(ApiResponse.ok(service.getById(id)));
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<IncidentReport>> create(@RequestBody IncidentReport report) {
-        return ResponseEntity.ok(ApiResponse.ok("Incident report created", service.create(report)));
+    public ResponseEntity<ApiResponse<IncidentReportResponseDto>> create(
+            @RequestBody IncidentReportRequestDto dto) {
+        return ResponseEntity.ok(ApiResponse.ok("Incident report created", service.create(dto)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<IncidentReport>> update(
+    public ResponseEntity<ApiResponse<IncidentReportResponseDto>> update(
             @PathVariable Integer id,
-            @RequestBody IncidentReport report) {
-        return ResponseEntity.ok(ApiResponse.ok("Incident report updated", service.update(id, report)));
+            @RequestBody IncidentReportRequestDto dto) {
+        return ResponseEntity.ok(ApiResponse.ok("Incident report updated", service.update(id, dto)));
     }
 
     @DeleteMapping("/{id}")
@@ -45,12 +47,14 @@ public class IncidentReportController {
     }
 
     @GetMapping("/status/{status}")
-    public ResponseEntity<ApiResponse<List<IncidentReport>>> getByStatus(@PathVariable String status) {
+    public ResponseEntity<ApiResponse<List<IncidentReportResponseDto>>> getByStatus(
+            @PathVariable String status) {
         return ResponseEntity.ok(ApiResponse.ok(service.getByStatus(status)));
     }
 
     @GetMapping("/severity/{severity}")
-    public ResponseEntity<ApiResponse<List<IncidentReport>>> getBySeverity(@PathVariable String severity) {
+    public ResponseEntity<ApiResponse<List<IncidentReportResponseDto>>> getBySeverity(
+            @PathVariable String severity) {
         return ResponseEntity.ok(ApiResponse.ok(service.getBySeverity(severity)));
     }
 }
