@@ -1,17 +1,12 @@
 package tn.esprit.disasteraidbackend.modules.identity.Entities;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class User {
 
     @Id
@@ -21,6 +16,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -43,138 +39,162 @@ public class User {
     private String profilePhoto;
 
     @Column(name = "is_email_verified")
-    private Boolean isEmailVerified;
+    private Boolean emailVerified;
 
     @Column(name = "is_phone_verified")
-    private Boolean isPhoneVerified;
+    private Boolean phoneVerified;
 
     @Column(name = "is_mfa_enabled")
-    private Boolean isMfaEnabled;
+    private Boolean mfaEnabled;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 20)
     private AccountStatus status;
 
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "last_login")
     private LocalDateTime lastLogin;
 
+    public User() {
+    }
+
+    public User(Integer userId, String email, String passwordHash, UserRole role, String firstName,
+                String lastName, String phone, String location, String profilePhoto,
+                Boolean emailVerified, Boolean phoneVerified, Boolean mfaEnabled,
+                AccountStatus status, LocalDateTime createdAt, LocalDateTime lastLogin) {
+        this.userId = userId;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.role = role;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.location = location;
+        this.profilePhoto = profilePhoto;
+        this.emailVerified = emailVerified;
+        this.phoneVerified = phoneVerified;
+        this.mfaEnabled = mfaEnabled;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.lastLogin = lastLogin;
+    }
+
     public Integer getUserId() {
         return userId;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPasswordHash() {
-        return passwordHash;
-    }
-
-    public UserRole getRole() {
-        return role;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public String getLocation() {
-        return location;
-    }
-
-    public String getProfilePhoto() {
-        return profilePhoto;
-    }
-
-    public Boolean getEmailVerified() {
-        return isEmailVerified;
-    }
-
-    public Boolean getPhoneVerified() {
-        return isPhoneVerified;
-    }
-
-    public Boolean getMfaEnabled() {
-        return isMfaEnabled;
-    }
-
-    public AccountStatus getStatus() {
-        return status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getLastLogin() {
-        return lastLogin;
     }
 
     public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
 
+    public UserRole getRole() {
+        return role;
+    }
+
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public String getFirstName() {
+        return firstName;
     }
 
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
+    public String getLastName() {
+        return lastName;
+    }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
+    }
+
+    public String getPhone() {
+        return phone;
     }
 
     public void setPhone(String phone) {
         this.phone = phone;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
     public void setLocation(String location) {
         this.location = location;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
     }
 
     public void setProfilePhoto(String profilePhoto) {
         this.profilePhoto = profilePhoto;
     }
 
+    public Boolean getEmailVerified() {
+        return emailVerified;
+    }
+
     public void setEmailVerified(Boolean emailVerified) {
-        this.isEmailVerified = emailVerified;
+        this.emailVerified = emailVerified;
+    }
+
+    public Boolean getPhoneVerified() {
+        return phoneVerified;
     }
 
     public void setPhoneVerified(Boolean phoneVerified) {
-        this.isPhoneVerified = phoneVerified;
+        this.phoneVerified = phoneVerified;
+    }
+
+    public Boolean getMfaEnabled() {
+        return mfaEnabled;
     }
 
     public void setMfaEnabled(Boolean mfaEnabled) {
-        this.isMfaEnabled = mfaEnabled;
+        this.mfaEnabled = mfaEnabled;
+    }
+
+    public AccountStatus getStatus() {
+        return status;
     }
 
     public void setStatus(AccountStatus status) {
         this.status = status;
     }
 
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getLastLogin() {
+        return lastLogin;
     }
 
     public void setLastLogin(LocalDateTime lastLogin) {
@@ -192,14 +212,14 @@ public class User {
         if (status == null) {
             status = AccountStatus.ACTIVE;
         }
-        if (isEmailVerified == null) {
-            isEmailVerified = false;
+        if (emailVerified == null) {
+            emailVerified = false;
         }
-        if (isPhoneVerified == null) {
-            isPhoneVerified = false;
+        if (phoneVerified == null) {
+            phoneVerified = false;
         }
-        if (isMfaEnabled == null) {
-            isMfaEnabled = false;
+        if (mfaEnabled == null) {
+            mfaEnabled = false;
         }
     }
 }

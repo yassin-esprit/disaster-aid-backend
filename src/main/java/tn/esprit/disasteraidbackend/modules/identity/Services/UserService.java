@@ -1,10 +1,14 @@
 package tn.esprit.disasteraidbackend.modules.identity.Services;
 
 import org.springframework.stereotype.Service;
+import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
+import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserResponseDTO;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
+import tn.esprit.disasteraidbackend.modules.identity.Mappers.UserMapper;
 import tn.esprit.disasteraidbackend.modules.identity.Repositories.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -15,46 +19,44 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public List<User> retrieveAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDTO> retrieveAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
-    public User retrieveUser(Integer id) {
-        return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-    }
-
-    public User addUser(User user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new RuntimeException("Email already exists");
-        }
-        return userRepository.save(user);
-    }
-
-    public User updateUser(User user) {
-        User existingUser = userRepository.findById(user.getUserId())
+    public UserResponseDTO retrieveUser(Integer id) {
+        User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (!existingUser.getEmail().equals(user.getEmail())
-                && userRepository.existsByEmail(user.getEmail())) {
+        return UserMapper.toResponseDTO(user);
+    }
+
+    public UserResponseDTO addUser(UserRequestDTO dto) {
+        if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
 
-        existingUser.setEmail(user.getEmail());
-        existingUser.setPasswordHash(user.getPasswordHash());
-        existingUser.setRole(user.getRole());
-        existingUser.setFirstName(user.getFirstName());
-        existingUser.setLastName(user.getLastName());
-        existingUser.setPhone(user.getPhone());
-        existingUser.setLocation(user.getLocation());
-        existingUser.setProfilePhoto(user.getProfilePhoto());
-        existingUser.setEmailVerified(user.getEmailVerified());
-        existingUser.setPhoneVerified(user.getPhoneVerified());
-        existingUser.setMfaEnabled(user.getMfaEnabled());
-        existingUser.setStatus(user.getStatus());
-        existingUser.setLastLogin(user.getLastLogin());
+        User user = UserMapper.toEntity(dto);
+        User savedUser = userRepository.save(user);
 
-        return userRepository.save(existingUser);
+        return UserMapper.toResponseDTO(savedUser);
+    }
+
+    public UserResponseDTO updateUser(Integer id, UserRequestDTO dto) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (!existingUser.getEmail().equals(dto.getEmail())
+                && userRepository.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("Email already exists");
+        }
+
+        UserMapper.updateEntityFromDTO(existingUser, dto);
+        User updatedUser = userRepository.save(existingUser);
+
+        return UserMapper.toResponseDTO(updatedUser);
     }
 
     public void removeUser(Integer id) {

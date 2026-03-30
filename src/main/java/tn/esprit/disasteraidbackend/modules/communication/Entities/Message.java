@@ -1,6 +1,5 @@
 package tn.esprit.disasteraidbackend.modules.communication.Entities;
 
-
 import jakarta.persistence.*;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
 
@@ -31,9 +30,16 @@ public class Message {
     @Column(name = "attachment")
     private List<String> attachments;
 
+    @Column(name = "sent_at")
     private LocalDateTime sentAt;
+
+    @Column(name = "edited_at")
     private LocalDateTime editedAt;
-    private Boolean isDeleted;
+
+    @Column(name = "is_deleted")
+    private Boolean deleted;
+
+    // ===== GETTERS / SETTERS =====
 
     public Integer getMessageId() {
         return messageId;
@@ -91,21 +97,23 @@ public class Message {
         this.editedAt = editedAt;
     }
 
-    public Boolean getIsDeleted() {
-        return isDeleted;
+    public Boolean getDeleted() {
+        return deleted;
     }
 
-    public void setIsDeleted(Boolean deleted) {
-        isDeleted = deleted;
+    public void setDeleted(Boolean deleted) {
+        this.deleted = deleted;
     }
+
+    // ===== DEFAULT VALUES =====
 
     @PrePersist
     public void prePersist() {
         if (sentAt == null) {
             sentAt = LocalDateTime.now();
         }
-        if (isDeleted == null) {
-            isDeleted = false;
+        if (deleted == null) {
+            deleted = false;
         }
     }
 }

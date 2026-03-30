@@ -1,4 +1,5 @@
 package tn.esprit.disasteraidbackend.modules.communication.Entities;
+
 import jakarta.persistence.*;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
 
@@ -27,7 +28,8 @@ public class NotificationPreference {
     @Column(name = "channel")
     private List<Channel> channels;
 
-    private Boolean isEnabled;
+    @Column(name = "is_enabled")
+    private Boolean enabled;
 
     private LocalTime quietHoursFrom;
     private LocalTime quietHoursTo;
@@ -64,12 +66,12 @@ public class NotificationPreference {
         this.channels = channels;
     }
 
-    public Boolean getIsEnabled() {
-        return isEnabled;
+    public Boolean getEnabled() {
+        return enabled;
     }
 
-    public void setIsEnabled(Boolean enabled) {
-        isEnabled = enabled;
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 
     public LocalTime getQuietHoursFrom() {
@@ -90,8 +92,8 @@ public class NotificationPreference {
 
     @PrePersist
     public void prePersist() {
-        if (isEnabled == null) {
-            isEnabled = true;
+        if (enabled == null) {
+            enabled = true;
         }
     }
 }
