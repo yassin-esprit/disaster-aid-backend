@@ -2,6 +2,7 @@ package tn.esprit.disasteraidbackend.analytics.m13.service;
 
 import org.springframework.stereotype.Service;
 import tn.esprit.disasteraidbackend.analytics.m13.dto.DisasterAnalyticsReportDto;
+import tn.esprit.disasteraidbackend.analytics.m13.dto.PredictiveModelRequestDto;
 import tn.esprit.disasteraidbackend.analytics.m13.entity.AuditLog;
 import tn.esprit.disasteraidbackend.analytics.m13.entity.DisasterStatistics;
 import tn.esprit.disasteraidbackend.analytics.m13.entity.PredictiveModel;
@@ -61,6 +62,43 @@ public class DisasterAnalyticsService {
             return predictiveModelRepository.findByIsActiveTrueOrderByTrainedAtDesc();
         }
         return predictiveModelRepository.findAll();
+    }
+
+    public PredictiveModel addPredictiveModel(PredictiveModelRequestDto request) {
+        PredictiveModel model = new PredictiveModel();
+        applyPredictiveModelFields(model, request, false);
+        return predictiveModelRepository.save(model);
+    }
+
+    public Optional<PredictiveModel> modifyPredictiveModel(Integer modelId, PredictiveModelRequestDto request) {
+        return predictiveModelRepository.findById(modelId)
+                .map(model -> {
+                    applyPredictiveModelFields(model, request, true);
+                    return predictiveModelRepository.save(model);
+                });
+    }
+
+    public boolean deletePredictiveModel(Integer modelId) {
+        if (!predictiveModelRepository.existsById(modelId)) {
+            return false;
+        }
+        predictiveModelRepository.deleteById(modelId);
+        return true;
+    }
+
+    private void applyPredictiveModelFields(PredictiveModel model, PredictiveModelRequestDto request, boolean isUpdate) {
+        model.setName(request.getName());
+        model.setVersion(request.getVersion());
+        model.setType(request.getType());
+        model.setArtifactUrl(request.getArtifactUrl());
+        model.setMetrics(request.getMetrics());
+        model.setIsActive(request.getIsActive() != null ? request.getIsActive() : Boolean.FALSE);
+
+        if (request.getTrainedAt() != null) {
+            model.setTrainedAt(request.getTrainedAt());
+        } else if (!isUpdate) {
+            model.setTrainedAt(null);
+        }
     }
 
     private long toLong(Object value) {
