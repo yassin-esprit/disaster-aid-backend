@@ -1,8 +1,8 @@
 package tn.esprit.disasteraidbackend.modules.sensor.controllers;
 
-import tn.esprit.disasteraidbackend.modules.sensor.entities.Alert;
-import tn.esprit.disasteraidbackend.modules.sensor.entities.GeofenceZone;
+import tn.esprit.disasteraidbackend.modules.sensor.dto.GeofenceZoneDTO;
 import tn.esprit.disasteraidbackend.modules.sensor.services.GeofenceZoneService;
+import tn.esprit.disasteraidbackend.modules.sensor.entities.GeofenceZone;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,41 +18,37 @@ public class GeofenceZoneController {
     private final GeofenceZoneService geofenceZoneService;
 
     @PostMapping
-    public ResponseEntity<GeofenceZone> createZone(@RequestBody GeofenceZone zone) {
-        GeofenceZone created = geofenceZoneService.createZone(zone);
+    public ResponseEntity<GeofenceZoneDTO> createZone(@RequestBody GeofenceZoneDTO zoneDTO) {
+        GeofenceZoneDTO created = geofenceZoneService.createZone(zoneDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<GeofenceZone> getZoneById(@PathVariable Integer id) {
+    public ResponseEntity<GeofenceZoneDTO> getZoneById(@PathVariable Integer id) {
         return geofenceZoneService.getZoneById(id)
-                .map(zone -> new ResponseEntity<>(zone, HttpStatus.OK))
+                .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping
-    public ResponseEntity<List<GeofenceZone>> getAllZones() {
+    public ResponseEntity<List<GeofenceZoneDTO>> getAllZones() {
         return new ResponseEntity<>(geofenceZoneService.getAllZones(), HttpStatus.OK);
     }
 
     @GetMapping("/alert/{alertId}")
-    public ResponseEntity<List<GeofenceZone>> getByAlert(@PathVariable Integer alertId) {
-        // We need a method in service that accepts alertId or Alert entity
-        // We'll assume we have a method that takes Alert
-        Alert alert = new Alert();
-        alert.setId(alertId);
-        return new ResponseEntity<>(geofenceZoneService.getZonesByAlert(alert), HttpStatus.OK);
+    public ResponseEntity<List<GeofenceZoneDTO>> getByAlert(@PathVariable Integer alertId) {
+        return new ResponseEntity<>(geofenceZoneService.getZonesByAlertId(alertId), HttpStatus.OK);
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<GeofenceZone>> getByType(@PathVariable GeofenceZone.ZoneType type) {
+    public ResponseEntity<List<GeofenceZoneDTO>> getByType(@PathVariable GeofenceZone.ZoneType type) {
         return new ResponseEntity<>(geofenceZoneService.getZonesByType(type), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<GeofenceZone> updateZone(@PathVariable Integer id, @RequestBody GeofenceZone zone) {
+    public ResponseEntity<GeofenceZoneDTO> updateZone(@PathVariable Integer id, @RequestBody GeofenceZoneDTO zoneDTO) {
         try {
-            GeofenceZone updated = geofenceZoneService.updateZone(id, zone);
+            GeofenceZoneDTO updated = geofenceZoneService.updateZone(id, zoneDTO);
             return new ResponseEntity<>(updated, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

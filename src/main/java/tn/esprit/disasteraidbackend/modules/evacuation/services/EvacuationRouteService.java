@@ -1,10 +1,13 @@
 package tn.esprit.disasteraidbackend.modules.evacuation.services;
 
+import tn.esprit.disasteraidbackend.common.mapper.DTOMapper;
+import tn.esprit.disasteraidbackend.modules.evacuation.dto.EvacuationRouteDTO;
 import tn.esprit.disasteraidbackend.modules.evacuation.entities.EvacuationRoute;
 import tn.esprit.disasteraidbackend.modules.evacuation.repositories.EvacuationRouteRepository;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.Alert;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.AlertRepository;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.LineString;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,58 +24,69 @@ public class EvacuationRouteService {
 
     private final EvacuationRouteRepository evacuationRouteRepository;
     private final AlertRepository alertRepository;
+    private final GeometryFactory geometryFactory;
 
-    public EvacuationRoute createRoute(EvacuationRoute route) {
-        // Validate alert exists
-        Alert alert = alertRepository.findById(route.getAlert().getId())
+    public EvacuationRouteDTO createRoute(EvacuationRouteDTO routeDTO) {
+        EvacuationRoute route = DTOMapper.toEntity(routeDTO, geometryFactory);
+        Alert alert = alertRepository.findById(routeDTO.getAlertId())
                 .orElseThrow(() -> new RuntimeException("Alert not found"));
         route.setAlert(alert);
-        if (route.getPath() == null) {
-            throw new IllegalArgumentException("Route path is required");
-        }
         route.setStatus(EvacuationRoute.RouteStatus.PLANNED);
-        return evacuationRouteRepository.save(route);
+        EvacuationRoute saved = evacuationRouteRepository.save(route);
+        return DTOMapper.toDTO(saved);
     }
 
-    public Optional<EvacuationRoute> getRouteById(Integer id) {
-        return evacuationRouteRepository.findById(id);
+    public Optional<EvacuationRouteDTO> getRouteById(Integer id) {
+        return evacuationRouteRepository.findById(id)
+                .map(DTOMapper::toDTO);
     }
 
-    public List<EvacuationRoute> getRoutesByAlert(Alert alert) {
-        return evacuationRouteRepository.findByAlert(alert);
+    public List<EvacuationRouteDTO> getRoutesByAlertId(Integer alertId) {
+        Alert alert = alertRepository.findById(alertId)
+                .orElseThrow(() -> new RuntimeException("Alert not found"));
+        return evacuationRouteRepository.findByAlert(alert).stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<EvacuationRoute> getRoutesByStatus(EvacuationRoute.RouteStatus status) {
-        return evacuationRouteRepository.findByStatus(status);
+    public List<EvacuationRouteDTO> getRoutesByStatus(EvacuationRoute.RouteStatus status) {
+        return evacuationRouteRepository.findByStatus(status).stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<EvacuationRoute> getRoutesByShelter(Integer shelterId) {
-        return evacuationRouteRepository.findByToShelterId(shelterId);
+    public List<EvacuationRouteDTO> getRoutesByShelter(Integer shelterId) {
+        return evacuationRouteRepository.findByToShelterId(shelterId).stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public EvacuationRoute updateRoute(Integer id, EvacuationRoute updated) {
+    public EvacuationRouteDTO updateRoute(Integer id, EvacuationRouteDTO routeDTO) {
         return evacuationRouteRepository.findById(id).map(route -> {
-            route.setPath(updated.getPath());
-            route.setEstimatedDurationMin(updated.getEstimatedDurationMin());
-            route.setCapacity(updated.getCapacity());
-            route.setToShelterId(updated.getToShelterId());
-            return evacuationRouteRepository.save(route);
+            route.setPath((LineString) DTOMapper.fromWKT(routeDTO.getPath(), geometryFactory));
+            route.setEstimatedDurationMin(routeDTO.getEstimatedDurationMin());
+            route.setCapacity(routeDTO.getCapacity());
+            route.setToShelterId(routeDTO.getToShelterId());
+            EvacuationRoute updated = evacuationRouteRepository.save(route);
+            return DTOMapper.toDTO(updated);
         }).orElseThrow(() -> new RuntimeException("Route not found"));
     }
 
-    public EvacuationRoute activateRoute(Integer id) {
+    public EvacuationRouteDTO activateRoute(Integer id) {
         return evacuationRouteRepository.findById(id).map(route -> {
             route.setStatus(EvacuationRoute.RouteStatus.ACTIVE);
             route.setActivatedAt(LocalDateTime.now());
-            return evacuationRouteRepository.save(route);
+            EvacuationRoute updated = evacuationRouteRepository.save(route);
+            return DTOMapper.toDTO(updated);
         }).orElseThrow(() -> new RuntimeException("Route not found"));
     }
 
-    public EvacuationRoute closeRoute(Integer id) {
+    public EvacuationRouteDTO closeRoute(Integer id) {
         return evacuationRouteRepository.findById(id).map(route -> {
             route.setStatus(EvacuationRoute.RouteStatus.CLOSED);
             route.setClosedAt(LocalDateTime.now());
-            return evacuationRouteRepository.save(route);
+            EvacuationRoute updated = evacuationRouteRepository.save(route);
+            return DTOMapper.toDTO(updated);
         }).orElseThrow(() -> new RuntimeException("Route not found"));
     }
 
@@ -79,9 +94,9 @@ public class EvacuationRouteService {
         evacuationRouteRepository.deleteById(id);
     }
 
-    public List<EvacuationRoute> getAllRoutes() {
-        return evacuationRouteRepository.findAll();
+    public List<EvacuationRouteDTO> getAllRoutes() {
+        return evacuationRouteRepository.findAll().stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
-
-
 }

@@ -1,8 +1,7 @@
 package tn.esprit.disasteraidbackend.modules.evacuation.controllers;
 
-import tn.esprit.disasteraidbackend.modules.evacuation.entities.ZoneShelterAssignment;
+import tn.esprit.disasteraidbackend.modules.evacuation.dto.ZoneShelterAssignmentDTO;
 import tn.esprit.disasteraidbackend.modules.evacuation.services.ZoneShelterAssignmentService;
-import tn.esprit.disasteraidbackend.modules.sensor.entities.GeofenceZone;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,39 +17,37 @@ public class ZoneShelterAssignmentController {
     private final ZoneShelterAssignmentService assignmentService;
 
     @PostMapping
-    public ResponseEntity<ZoneShelterAssignment> createAssignment(@RequestBody ZoneShelterAssignment assignment) {
-        ZoneShelterAssignment created = assignmentService.createAssignment(assignment);
+    public ResponseEntity<ZoneShelterAssignmentDTO> createAssignment(@RequestBody ZoneShelterAssignmentDTO assignmentDTO) {
+        ZoneShelterAssignmentDTO created = assignmentService.createAssignment(assignmentDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ZoneShelterAssignment> getAssignmentById(@PathVariable Integer id) {
+    public ResponseEntity<ZoneShelterAssignmentDTO> getAssignmentById(@PathVariable Integer id) {
         return assignmentService.getAssignmentById(id)
-                .map(assignment -> new ResponseEntity<>(assignment, HttpStatus.OK))
+                .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping
-    public ResponseEntity<List<ZoneShelterAssignment>> getAllAssignments() {
+    public ResponseEntity<List<ZoneShelterAssignmentDTO>> getAllAssignments() {
         return new ResponseEntity<>(assignmentService.getAllAssignments(), HttpStatus.OK);
     }
 
     @GetMapping("/zone/{zoneId}")
-    public ResponseEntity<List<ZoneShelterAssignment>> getByZone(@PathVariable Integer zoneId) {
-        GeofenceZone zone = new GeofenceZone();
-        zone.setId(zoneId);
-        return new ResponseEntity<>(assignmentService.getAssignmentsByZone(zone), HttpStatus.OK);
+    public ResponseEntity<List<ZoneShelterAssignmentDTO>> getByZone(@PathVariable Integer zoneId) {
+        return new ResponseEntity<>(assignmentService.getAssignmentsByZoneId(zoneId), HttpStatus.OK);
     }
 
     @GetMapping("/shelter/{shelterId}")
-    public ResponseEntity<List<ZoneShelterAssignment>> getByShelter(@PathVariable Integer shelterId) {
+    public ResponseEntity<List<ZoneShelterAssignmentDTO>> getByShelter(@PathVariable Integer shelterId) {
         return new ResponseEntity<>(assignmentService.getAssignmentsByShelter(shelterId), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ZoneShelterAssignment> updateAssignment(@PathVariable Integer id, @RequestBody ZoneShelterAssignment assignment) {
+    public ResponseEntity<ZoneShelterAssignmentDTO> updateAssignment(@PathVariable Integer id, @RequestBody ZoneShelterAssignmentDTO assignmentDTO) {
         try {
-            ZoneShelterAssignment updated = assignmentService.updateAssignment(id, assignment);
+            ZoneShelterAssignmentDTO updated = assignmentService.updateAssignment(id, assignmentDTO);
             return new ResponseEntity<>(updated, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

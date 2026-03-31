@@ -1,5 +1,7 @@
 package tn.esprit.disasteraidbackend.modules.sensor.services;
 
+import tn.esprit.disasteraidbackend.common.mapper.DTOMapper;
+import tn.esprit.disasteraidbackend.modules.sensor.dto.AlertThresholdDTO;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.AlertThreshold;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.Sensor;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.AlertThresholdRepository;
@@ -9,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -17,34 +20,37 @@ public class AlertThresholdService {
 
     private final AlertThresholdRepository alertThresholdRepository;
 
-    public AlertThreshold createThreshold(AlertThreshold threshold) {
-        if (threshold.getSensorType() == null || threshold.getParameter() == null) {
-            throw new IllegalArgumentException("Sensor type and parameter are required");
-        }
-        return alertThresholdRepository.save(threshold);
+    public AlertThresholdDTO createThreshold(AlertThresholdDTO thresholdDTO) {
+        AlertThreshold threshold = DTOMapper.toEntity(thresholdDTO);
+        return DTOMapper.toDTO(alertThresholdRepository.save(threshold));
     }
 
-    public Optional<AlertThreshold> getThresholdById(Integer id) {
-        return alertThresholdRepository.findById(id);
+    public Optional<AlertThresholdDTO> getThresholdById(Integer id) {
+        return alertThresholdRepository.findById(id)
+                .map(DTOMapper::toDTO);
     }
 
-    public Optional<AlertThreshold> getThresholdBySensorTypeAndParameter(Sensor.SensorType sensorType, String parameter) {
-        return alertThresholdRepository.findBySensorTypeAndParameter(sensorType, parameter);
+    public Optional<AlertThresholdDTO> getThresholdBySensorTypeAndParameter(Sensor.SensorType sensorType, String parameter) {
+        return alertThresholdRepository.findBySensorTypeAndParameter(sensorType, parameter)
+                .map(DTOMapper::toDTO);
     }
 
-    public List<AlertThreshold> getAllThresholds() {
-        return alertThresholdRepository.findAll();
+    public List<AlertThresholdDTO> getAllThresholds() {
+        return alertThresholdRepository.findAll().stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public AlertThreshold updateThreshold(Integer id, AlertThreshold updated) {
+    public AlertThresholdDTO updateThreshold(Integer id, AlertThresholdDTO thresholdDTO) {
         return alertThresholdRepository.findById(id).map(threshold -> {
-            threshold.setSensorType(updated.getSensorType());
-            threshold.setParameter(updated.getParameter());
-            threshold.setWarnLevel(updated.getWarnLevel());
-            threshold.setCriticalLevel(updated.getCriticalLevel());
-            threshold.setUnit(updated.getUnit());
-            threshold.setEvaluationWindowSec(updated.getEvaluationWindowSec());
-            return alertThresholdRepository.save(threshold);
+            threshold.setSensorType(thresholdDTO.getSensorType());
+            threshold.setParameter(thresholdDTO.getParameter());
+            threshold.setWarnLevel(thresholdDTO.getWarnLevel());
+            threshold.setCriticalLevel(thresholdDTO.getCriticalLevel());
+            threshold.setUnit(thresholdDTO.getUnit());
+            threshold.setEvaluationWindowSec(thresholdDTO.getEvaluationWindowSec());
+            AlertThreshold updated = alertThresholdRepository.save(threshold);
+            return DTOMapper.toDTO(updated);
         }).orElseThrow(() -> new RuntimeException("Threshold not found"));
     }
 

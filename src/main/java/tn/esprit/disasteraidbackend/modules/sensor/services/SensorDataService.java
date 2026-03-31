@@ -1,5 +1,7 @@
 package tn.esprit.disasteraidbackend.modules.sensor.services;
 
+import tn.esprit.disasteraidbackend.common.mapper.DTOMapper;
+import tn.esprit.disasteraidbackend.modules.sensor.dto.SensorDataDTO;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.*;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorDataRepository;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorRepository;
@@ -11,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -20,26 +23,28 @@ public class SensorDataService {
     private final SensorDataRepository sensorDataRepository;
     private final SensorRepository sensorRepository;
     private final AlertThresholdRepository alertThresholdRepository;
-    private final AlertService alertService; // We'll create AlertService next
+    private final AlertService alertService;
 
-    public SensorData recordReading(SensorData reading) {
-        // Business logic: validate sensor exists
-        Sensor sensor = sensorRepository.findById(reading.getSensor().getId())
+    public SensorDataDTO recordReading(SensorDataDTO readingDTO) {
+        // Convert DTO to entity
+        SensorData reading = DTOMapper.toEntity(readingDTO);
+        // Fetch and set sensor
+        Sensor sensor = sensorRepository.findById(readingDTO.getSensorId())
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
         reading.setSensor(sensor);
         reading.setRecordedAt(LocalDateTime.now());
 
-        // Check for anomalies (simple example: if value > 1000)
+        // Simple anomaly detection
         if (reading.getValue() > 1000) {
             reading.setIsAnomaly(true);
         }
 
         SensorData saved = sensorDataRepository.save(reading);
 
-        // Evaluate thresholds and possibly trigger alerts
+        // Evaluate thresholds and trigger alerts (internal method works with entity)
         evaluateAndTriggerAlert(saved);
 
-        return saved;
+        return DTOMapper.toDTO(saved);
     }
 
     private void evaluateAndTriggerAlert(SensorData reading) {
@@ -51,40 +56,38 @@ public class SensorDataService {
             AlertThreshold threshold = thresholdOpt.get();
             Double value = reading.getValue();
             if (value >= threshold.getCriticalLevel()) {
-                // Trigger critical alert
                 alertService.createAlertFromSensor(sensor, Alert.Severity.CRITICAL, reading);
             } else if (value >= threshold.getWarnLevel()) {
-                // Trigger warning alert
                 alertService.createAlertFromSensor(sensor, Alert.Severity.HIGH, reading);
             }
         }
     }
 
-    public List<SensorData> getReadingsBySensor(Sensor sensor) {
-        return sensorDataRepository.findBySensor(sensor);
-    }
-
-    public List<SensorData> getReadingsBySensorBetweenDates(Sensor sensor, LocalDateTime start, LocalDateTime end) {
-        return sensorDataRepository.findBySensorAndRecordedAtBetween(sensor, start, end);
-    }
-
-    public List<SensorData> getAnomalies() {
-        return sensorDataRepository.findByIsAnomalyTrue();
-    }
-
-    public List<SensorData> getReadingsAfter(LocalDateTime date) {
-        return sensorDataRepository.findByRecordedAtAfter(date);
-    }
-
-    public List<SensorData> getReadingsBySensorId(Integer sensorId) {
+    public List<SensorDataDTO> getReadingsBySensorId(Integer sensorId) {
         Sensor sensor = sensorRepository.findById(sensorId)
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
-        return sensorDataRepository.findBySensor(sensor);
+        return sensorDataRepository.findBySensor(sensor).stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
-    public List<SensorData> getReadingsBySensorIdBetweenDates(Integer sensorId, LocalDateTime start, LocalDateTime end) {
+    public List<SensorDataDTO> getReadingsBySensorIdBetweenDates(Integer sensorId, LocalDateTime start, LocalDateTime end) {
         Sensor sensor = sensorRepository.findById(sensorId)
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
-        return sensorDataRepository.findBySensorAndRecordedAtBetween(sensor, start, end);
+        return sensorDataRepository.findBySensorAndRecordedAtBetween(sensor, start, end).stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<SensorDataDTO> getAnomalies() {
+        return sensorDataRepository.findByIsAnomalyTrue().stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    public List<SensorDataDTO> getReadingsAfter(LocalDateTime date) {
+        return sensorDataRepository.findByRecordedAtAfter(date).stream()
+                .map(DTOMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }

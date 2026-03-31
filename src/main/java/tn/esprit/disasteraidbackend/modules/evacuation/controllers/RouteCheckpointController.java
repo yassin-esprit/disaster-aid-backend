@@ -1,8 +1,8 @@
 package tn.esprit.disasteraidbackend.modules.evacuation.controllers;
 
-import tn.esprit.disasteraidbackend.modules.evacuation.entities.RouteCheckpoint;
-import tn.esprit.disasteraidbackend.modules.evacuation.entities.EvacuationRoute;
+import tn.esprit.disasteraidbackend.modules.evacuation.dto.RouteCheckpointDTO;
 import tn.esprit.disasteraidbackend.modules.evacuation.services.RouteCheckpointService;
+import tn.esprit.disasteraidbackend.modules.evacuation.entities.RouteCheckpoint.CheckpointType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,39 +18,37 @@ public class RouteCheckpointController {
     private final RouteCheckpointService checkpointService;
 
     @PostMapping
-    public ResponseEntity<RouteCheckpoint> createCheckpoint(@RequestBody RouteCheckpoint checkpoint) {
-        RouteCheckpoint created = checkpointService.createCheckpoint(checkpoint);
+    public ResponseEntity<RouteCheckpointDTO> createCheckpoint(@RequestBody RouteCheckpointDTO checkpointDTO) {
+        RouteCheckpointDTO created = checkpointService.createCheckpoint(checkpointDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RouteCheckpoint> getCheckpointById(@PathVariable Integer id) {
+    public ResponseEntity<RouteCheckpointDTO> getCheckpointById(@PathVariable Integer id) {
         return checkpointService.getCheckpointById(id)
-                .map(checkpoint -> new ResponseEntity<>(checkpoint, HttpStatus.OK))
+                .map(dto -> new ResponseEntity<>(dto, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @GetMapping
-    public ResponseEntity<List<RouteCheckpoint>> getAllCheckpoints() {
+    public ResponseEntity<List<RouteCheckpointDTO>> getAllCheckpoints() {
         return new ResponseEntity<>(checkpointService.getAllCheckpoints(), HttpStatus.OK);
     }
 
     @GetMapping("/route/{routeId}")
-    public ResponseEntity<List<RouteCheckpoint>> getByRoute(@PathVariable Integer routeId) {
-        EvacuationRoute route = new EvacuationRoute();
-        route.setId(routeId);
-        return new ResponseEntity<>(checkpointService.getCheckpointsByRoute(route), HttpStatus.OK);
+    public ResponseEntity<List<RouteCheckpointDTO>> getByRoute(@PathVariable Integer routeId) {
+        return new ResponseEntity<>(checkpointService.getCheckpointsByRouteId(routeId), HttpStatus.OK);
     }
 
     @GetMapping("/type/{type}")
-    public ResponseEntity<List<RouteCheckpoint>> getByType(@PathVariable RouteCheckpoint.CheckpointType type) {
+    public ResponseEntity<List<RouteCheckpointDTO>> getByType(@PathVariable CheckpointType type) {
         return new ResponseEntity<>(checkpointService.getCheckpointsByType(type), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<RouteCheckpoint> updateCheckpoint(@PathVariable Integer id, @RequestBody RouteCheckpoint checkpoint) {
+    public ResponseEntity<RouteCheckpointDTO> updateCheckpoint(@PathVariable Integer id, @RequestBody RouteCheckpointDTO checkpointDTO) {
         try {
-            RouteCheckpoint updated = checkpointService.updateCheckpoint(id, checkpoint);
+            RouteCheckpointDTO updated = checkpointService.updateCheckpoint(id, checkpointDTO);
             return new ResponseEntity<>(updated, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
