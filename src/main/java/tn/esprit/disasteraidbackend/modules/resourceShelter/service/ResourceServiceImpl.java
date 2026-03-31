@@ -2,7 +2,6 @@ package tn.esprit.disasteraidbackend.modules.resourceShelter.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.ResourceCreateDto;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.ResourceUpdateDto;
@@ -11,12 +10,16 @@ import tn.esprit.disasteraidbackend.modules.resourceShelter.entity.User;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.ResourceRepository;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.UserRepository;
 
-@AllArgsConstructor
 @Service
 public class ResourceServiceImpl implements IResourceService {
 
     private final ResourceRepository resourceRepository;
     private final UserRepository userRepository;
+
+    public ResourceServiceImpl(ResourceRepository resourceRepository, UserRepository userRepository) {
+        this.resourceRepository = resourceRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Resource addResource(ResourceCreateDto dto) {

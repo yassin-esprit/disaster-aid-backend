@@ -3,7 +3,6 @@ package tn.esprit.disasteraidbackend.modules.resourceShelter.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.ShelterOccupantCreateDto;
@@ -16,13 +15,20 @@ import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.ShelterOc
 import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.ShelterRepository;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.UserRepository;
 
-@AllArgsConstructor
 @Service
 public class ShelterOccupantServiceImpl implements IShelterOccupantService {
 
     private final ShelterOccupantRepository occupantRepository;
     private final ShelterRepository shelterRepository;
     private final UserRepository userRepository;
+
+    public ShelterOccupantServiceImpl(ShelterOccupantRepository occupantRepository,
+                                      ShelterRepository shelterRepository,
+                                      UserRepository userRepository) {
+        this.occupantRepository = occupantRepository;
+        this.shelterRepository = shelterRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     @Transactional

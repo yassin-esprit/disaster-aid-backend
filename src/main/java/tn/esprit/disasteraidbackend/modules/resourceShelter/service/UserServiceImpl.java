@@ -1,16 +1,18 @@
 package tn.esprit.disasteraidbackend.modules.resourceShelter.service;
 
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.entity.User;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.UserRepository;
 
-@AllArgsConstructor
 @Service
 public class UserServiceImpl implements IUserService {
 
     private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public User addUser(User user) {

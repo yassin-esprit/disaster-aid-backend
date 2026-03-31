@@ -3,7 +3,6 @@ package tn.esprit.disasteraidbackend.modules.resourceShelter.service;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.ShelterCreateDto;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.ShelterUpdateDto;
@@ -13,12 +12,16 @@ import tn.esprit.disasteraidbackend.modules.resourceShelter.entity.User;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.ShelterRepository;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.repository.UserRepository;
 
-@AllArgsConstructor
 @Service
 public class ShelterServiceImpl implements IShelterService {
 
     private final ShelterRepository shelterRepository;
     private final UserRepository userRepository;
+
+    public ShelterServiceImpl(ShelterRepository shelterRepository, UserRepository userRepository) {
+        this.shelterRepository = shelterRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public Shelter addShelter(ShelterCreateDto dto) {

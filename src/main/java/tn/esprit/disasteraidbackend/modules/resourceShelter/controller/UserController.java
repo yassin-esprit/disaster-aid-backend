@@ -2,19 +2,21 @@ package tn.esprit.disasteraidbackend.modules.resourceShelter.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.UserCreateDto;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.UserUpdateDto;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.entity.User;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.service.IUserService;
 
-@AllArgsConstructor
 @RestController
 @RequestMapping("/resource-shelter/users")
 public class UserController {
 
     private final IUserService userService;
+
+    public UserController(IUserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping
     public User add(@Valid @RequestBody UserCreateDto dto) {

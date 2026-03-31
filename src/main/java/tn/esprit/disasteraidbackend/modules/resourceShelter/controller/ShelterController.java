@@ -2,19 +2,21 @@ package tn.esprit.disasteraidbackend.modules.resourceShelter.controller;
 
 import jakarta.validation.Valid;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.ShelterCreateDto;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.dto.ShelterUpdateDto;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.entity.Shelter;
 import tn.esprit.disasteraidbackend.modules.resourceShelter.service.IShelterService;
 
-@AllArgsConstructor
 @RestController
 @RequestMapping("/resource-shelter/shelters")
 public class ShelterController {
 
     private final IShelterService shelterService;
+
+    public ShelterController(IShelterService shelterService) {
+        this.shelterService = shelterService;
+    }
 
     @PostMapping
     public Shelter add(@Valid @RequestBody ShelterCreateDto dto) {
