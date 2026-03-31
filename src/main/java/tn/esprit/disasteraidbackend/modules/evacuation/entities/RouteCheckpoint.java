@@ -1,10 +1,14 @@
 package tn.esprit.disasteraidbackend.modules.evacuation.entities;
 
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import tn.esprit.disasteraidbackend.common.BaseEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.locationtech.jts.geom.Point;
+
+import java.util.List;
 
 @Entity
 @Table(name = "route_checkpoints")
@@ -24,8 +28,9 @@ public class RouteCheckpoint extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private CheckpointType type;
 
-    @Column(columnDefinition = "INT[]")
-    private Integer[] responderIds;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "integer[]")
+    private List<Integer> responderIds;
 
     private Boolean isActive = true;
 
