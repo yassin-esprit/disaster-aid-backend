@@ -1,22 +1,51 @@
 package tn.esprit.disasteraidbackend.modules.identity.DTOs;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.AccountStatus;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.UserRole;
 
 public class UserRequestDTO {
 
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email format is invalid")
+    @Size(max = 150, message = "Email must not exceed 150 characters")
     private String email;
-    private String passwordHash;
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters")
+    private String password;
+
+    @NotNull(message = "Role is required")
     private UserRole role;
+
+    @NotBlank(message = "First name is required")
+    @Size(max = 100, message = "First name must not exceed 100 characters")
     private String firstName;
+
+    @NotBlank(message = "Last name is required")
+    @Size(max = 100, message = "Last name must not exceed 100 characters")
     private String lastName;
+
+    @Pattern(regexp = "^[0-9+ ]{8,20}$", message = "Phone number is invalid")
     private String phone;
+
+    @Size(max = 255, message = "Location must not exceed 255 characters")
     private String location;
+
+    @Size(max = 500, message = "Profile photo URL must not exceed 500 characters")
     private String profilePhoto;
+
     private Boolean emailVerified;
     private Boolean phoneVerified;
     private Boolean mfaEnabled;
     private AccountStatus status;
+
+    public UserRequestDTO() {
+    }
 
     public String getEmail() {
         return email;
@@ -26,12 +55,12 @@ public class UserRequestDTO {
         this.email = email;
     }
 
-    public String getPasswordHash() {
-        return passwordHash;
+    public String getPassword() {
+        return password;
     }
 
-    public void setPasswordHash(String passwordHash) {
-        this.passwordHash = passwordHash;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public UserRole getRole() {

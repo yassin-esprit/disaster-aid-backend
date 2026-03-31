@@ -22,6 +22,9 @@ public class UserResponseDTO {
     private LocalDateTime createdAt;
     private LocalDateTime lastLogin;
 
+    public UserResponseDTO() {
+    }
+
     public Integer getUserId() {
         return userId;
     }

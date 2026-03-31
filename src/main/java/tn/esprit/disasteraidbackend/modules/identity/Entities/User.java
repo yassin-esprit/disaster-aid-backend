@@ -13,11 +13,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer userId;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false, length = 150)
     private String email;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Column(name = "password_hash", nullable = false)
+    @Column(name = "password_hash", nullable = false, length = 255)
     private String passwordHash;
 
     @Enumerated(EnumType.STRING)
@@ -33,9 +33,10 @@ public class User {
     @Column(length = 20)
     private String phone;
 
+    @Column(length = 255)
     private String location;
 
-    @Column(name = "profile_photo")
+    @Column(name = "profile_photo", length = 500)
     private String profilePhoto;
 
     @Column(name = "is_email_verified")

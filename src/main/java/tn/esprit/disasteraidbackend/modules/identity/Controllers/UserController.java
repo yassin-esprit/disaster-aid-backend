@@ -3,6 +3,9 @@ package tn.esprit.disasteraidbackend.modules.identity.Controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserResponseDTO;
@@ -23,39 +26,40 @@ public class UserController {
     }
 
     @Operation(summary = "Récupérer tous les utilisateurs")
-    @GetMapping("/retrieve-all-users")
-    public List<UserResponseDTO> getAllUsers() {
-        return userService.retrieveAllUsers();
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
+        return ResponseEntity.ok(userService.retrieveAllUsers());
     }
 
     @Operation(summary = "Récupérer un utilisateur par ID")
-    @GetMapping("/retrieve-user/{id}")
-    public UserResponseDTO getUserById(
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUserById(
             @Parameter(description = "ID de l'utilisateur")
             @PathVariable Integer id) {
-        return userService.retrieveUser(id);
+        return ResponseEntity.ok(userService.retrieveUser(id));
     }
 
     @Operation(summary = "Ajouter un nouvel utilisateur")
-    @PostMapping("/add-user")
-    public UserResponseDTO addUser(@RequestBody UserRequestDTO userRequestDTO) {
-        return userService.addUser(userRequestDTO);
+    @PostMapping
+    public ResponseEntity<UserResponseDTO> addUser(@Valid @RequestBody UserRequestDTO userRequestDTO) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(userRequestDTO));
     }
 
     @Operation(summary = "Mettre à jour un utilisateur")
-    @PutMapping("/update-user/{id}")
-    public UserResponseDTO updateUser(
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(
             @Parameter(description = "ID de l'utilisateur à modifier")
             @PathVariable Integer id,
-            @RequestBody UserRequestDTO userRequestDTO) {
-        return userService.updateUser(id, userRequestDTO);
+            @Valid @RequestBody UserRequestDTO userRequestDTO) {
+        return ResponseEntity.ok(userService.updateUser(id, userRequestDTO));
     }
 
     @Operation(summary = "Supprimer un utilisateur par ID")
-    @DeleteMapping("/remove-user/{id}")
-    public void removeUser(
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> removeUser(
             @Parameter(description = "ID de l'utilisateur à supprimer")
             @PathVariable Integer id) {
         userService.removeUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

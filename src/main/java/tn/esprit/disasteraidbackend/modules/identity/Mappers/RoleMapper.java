@@ -7,6 +7,9 @@ import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
 
 public class RoleMapper {
 
+    private RoleMapper() {
+    }
+
     public static Role toEntity(RoleRequestDTO dto, User user) {
         Role role = new Role();
         role.setUser(user);

@@ -8,6 +8,9 @@ public class RoleResponseDTO {
     private Integer userId;
     private UserRole roleType;
 
+    public RoleResponseDTO() {
+    }
+
     public Integer getRoleId() {
         return roleId;
     }

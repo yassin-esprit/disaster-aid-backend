@@ -6,10 +6,12 @@ import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
 
 public class UserMapper {
 
+    private UserMapper() {
+    }
+
     public static User toEntity(UserRequestDTO dto) {
         User user = new User();
         user.setEmail(dto.getEmail());
-        user.setPasswordHash(dto.getPasswordHash());
         user.setRole(dto.getRole());
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
@@ -44,7 +46,6 @@ public class UserMapper {
 
     public static void updateEntityFromDTO(User user, UserRequestDTO dto) {
         user.setEmail(dto.getEmail());
-        user.setPasswordHash(dto.getPasswordHash());
         user.setRole(dto.getRole());
         user.setFirstName(dto.getFirstName());
         user.setLastName(dto.getLastName());
