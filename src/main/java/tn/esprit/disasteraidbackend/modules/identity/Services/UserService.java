@@ -1,8 +1,10 @@
 package tn.esprit.disasteraidbackend.modules.identity.Services;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.disasteraidbackend.modules.communication.Repositories.MessageRepository;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserResponseDTO;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
@@ -18,14 +20,27 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final MessageRepository messageRepository;
+    private final SecurityService securityService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       MessageRepository messageRepository,
+                       SecurityService securityService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.messageRepository = messageRepository;
+        this.securityService = securityService;
     }
 
     @Transactional(readOnly = true)
     public List<UserResponseDTO> retrieveAllUsers() {
+        User currentUser = securityService.getCurrentUser();
+
+        if (!securityService.isAdmin(currentUser)) {
+            throw new RuntimeException("Access denied: only admins can view all users");
+        }
+
         return userRepository.findAll()
                 .stream()
                 .map(UserMapper::toResponseDTO)
@@ -34,6 +49,12 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public UserResponseDTO retrieveUser(Integer id) {
+        User currentUser = securityService.getCurrentUser();
+
+        if (!securityService.isAdmin(currentUser) && !currentUser.getUserId().equals(id)) {
+            throw new RuntimeException("Access denied");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
 
@@ -41,6 +62,12 @@ public class UserService {
     }
 
     public UserResponseDTO addUser(UserRequestDTO dto) {
+        User currentUser = securityService.getCurrentUser();
+
+        if (!securityService.isAdmin(currentUser)) {
+            throw new RuntimeException("Access denied: only admins can create users");
+        }
+
         if (userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email already exists");
         }
@@ -53,12 +80,31 @@ public class UserService {
     }
 
     public UserResponseDTO updateUser(Integer id, UserRequestDTO dto) {
+        User currentUser = securityService.getCurrentUser();
+
+        if (!securityService.isAdmin(currentUser) && !currentUser.getUserId().equals(id)) {
+            throw new RuntimeException("Access denied");
+        }
+
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
 
         if (!existingUser.getEmail().equals(dto.getEmail())
                 && userRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email already exists");
+        }
+
+        // Normal users cannot change role
+        if (!securityService.isAdmin(currentUser)) {
+            dto.setRole(existingUser.getRole());
+        }
+
+        // Normal users cannot change verification/status flags
+        if (!securityService.isAdmin(currentUser)) {
+            dto.setEmailVerified(existingUser.getEmailVerified());
+            dto.setPhoneVerified(existingUser.getPhoneVerified());
+            dto.setMfaEnabled(existingUser.getMfaEnabled());
+            dto.setStatus(existingUser.getStatus());
         }
 
         UserMapper.updateEntityFromDTO(existingUser, dto);
@@ -72,9 +118,31 @@ public class UserService {
     }
 
     public void removeUser(Integer id) {
+        User currentUser = securityService.getCurrentUser();
+
+        if (!securityService.isAdmin(currentUser)) {
+            throw new RuntimeException("Access denied: only admins can delete users");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
 
-        userRepository.delete(user);
+        try {
+            messageRepository.deleteBySender_UserId(id);
+            userRepository.delete(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new RuntimeException("Cannot delete this user because it is linked to other data");
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO getMyProfile() {
+        User currentUser = securityService.getCurrentUser();
+        return UserMapper.toResponseDTO(currentUser);
+    }
+
+    public UserResponseDTO updateMyProfile(UserRequestDTO dto) {
+        User currentUser = securityService.getCurrentUser();
+        return updateUser(currentUser.getUserId(), dto);
     }
 }

@@ -3,6 +3,8 @@ package tn.esprit.disasteraidbackend.modules.communication.Controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.modules.communication.DTOs.MessageRequestDTO;
 import tn.esprit.disasteraidbackend.modules.communication.DTOs.MessageResponseDTO;
@@ -13,7 +15,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/communication/messages")
 @CrossOrigin("*")
-@Tag(name = "Message", description = "Gestion des messages")
+@Tag(name = "Message", description = "Message management")
 public class MessageController {
 
     private final MessageService messageService;
@@ -22,40 +24,48 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @Operation(summary = "Récupérer tous les messages")
+    @Operation(summary = "Retrieve messages")
     @GetMapping("/retrieve-all")
-    public List<MessageResponseDTO> getAll() {
-        return messageService.retrieveAllMessages();
+    public ResponseEntity<List<MessageResponseDTO>> getAll() {
+        return ResponseEntity.ok(messageService.retrieveAllMessages());
     }
 
-    @Operation(summary = "Récupérer un message par ID")
+    @Operation(summary = "Retrieve my messages")
+    @GetMapping("/me")
+    public ResponseEntity<List<MessageResponseDTO>> getMyMessages() {
+        return ResponseEntity.ok(messageService.getMyMessages());
+    }
+
+    @Operation(summary = "Retrieve a message by ID")
     @GetMapping("/{id}")
-    public MessageResponseDTO getById(
-            @Parameter(description = "ID du message")
+    public ResponseEntity<MessageResponseDTO> getById(
+            @Parameter(description = "Message ID")
             @PathVariable Integer id) {
-        return messageService.retrieveMessage(id);
+        return ResponseEntity.ok(messageService.retrieveMessage(id));
     }
 
-    @Operation(summary = "Ajouter un message")
+    @Operation(summary = "Create a message")
     @PostMapping("/add")
-    public MessageResponseDTO add(@RequestBody MessageRequestDTO dto) {
-        return messageService.addMessage(dto);
+    public ResponseEntity<MessageResponseDTO> add(@RequestBody MessageRequestDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(messageService.addMessage(dto));
     }
 
-    @Operation(summary = "Mettre à jour un message")
+    @Operation(summary = "Update a message")
     @PutMapping("/update/{id}")
-    public MessageResponseDTO update(
-            @Parameter(description = "ID du message à modifier")
+    public ResponseEntity<MessageResponseDTO> update(
+            @Parameter(description = "Message ID to update")
             @PathVariable Integer id,
             @RequestBody MessageRequestDTO dto) {
-        return messageService.updateMessage(id, dto);
+        return ResponseEntity.ok(messageService.updateMessage(id, dto));
     }
 
-    @Operation(summary = "Supprimer un message")
+    @Operation(summary = "Delete a message")
     @DeleteMapping("/delete/{id}")
-    public void delete(
-            @Parameter(description = "ID du message à supprimer")
+    public ResponseEntity<Void> delete(
+            @Parameter(description = "Message ID to delete")
             @PathVariable Integer id) {
         messageService.removeMessage(id);
+        return ResponseEntity.noContent().build();
     }
 }

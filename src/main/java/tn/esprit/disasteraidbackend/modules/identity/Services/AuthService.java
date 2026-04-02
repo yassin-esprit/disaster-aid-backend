@@ -7,7 +7,9 @@ import org.springframework.stereotype.Service;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.AuthResponseDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.LoginRequestDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
+import tn.esprit.disasteraidbackend.modules.identity.Entities.AccountStatus;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
+import tn.esprit.disasteraidbackend.modules.identity.Entities.UserRole;
 import tn.esprit.disasteraidbackend.modules.identity.Mappers.UserMapper;
 import tn.esprit.disasteraidbackend.modules.identity.Repositories.UserRepository;
 
@@ -38,6 +40,20 @@ public class AuthService {
 
         User user = UserMapper.toEntity(request);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+
+        // Secure defaults for public registration
+        user.setRole(UserRole.CITIZEN);
+        user.setStatus(AccountStatus.ACTIVE);
+
+        if (user.getEmailVerified() == null) {
+            user.setEmailVerified(false);
+        }
+        if (user.getPhoneVerified() == null) {
+            user.setPhoneVerified(false);
+        }
+        if (user.getMfaEnabled() == null) {
+            user.setMfaEnabled(false);
+        }
 
         User savedUser = userRepository.save(user);
         String jwtToken = jwtService.generateToken(savedUser);
