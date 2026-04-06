@@ -120,4 +120,10 @@ public class AlertService {
             return DTOMapper.toDTO(updated);
         }).orElseThrow(() -> new RuntimeException("Alert not found"));
     }
+    public void deleteAlert(Integer id) {
+        if (!alertRepository.existsById(id)) {
+            throw new RuntimeException("Alert not found with id: " + id);
+        }
+        alertRepository.deleteById(id);
+    }
 }
