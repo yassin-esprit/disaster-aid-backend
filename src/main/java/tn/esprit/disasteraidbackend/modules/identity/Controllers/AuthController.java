@@ -2,6 +2,7 @@ package tn.esprit.disasteraidbackend.modules.identity.Controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,7 +39,8 @@ public class AuthController {
 
     @Operation(summary = "Logout user")
     @PostMapping("/logout")
-    public ResponseEntity<LogoutResponseDTO> logout() {
-        return ResponseEntity.ok(new LogoutResponseDTO(authService.logout()));
+    public ResponseEntity<LogoutResponseDTO> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        return ResponseEntity.ok(new LogoutResponseDTO(authService.logout(authHeader)));
     }
 }

@@ -5,6 +5,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.disasteraidbackend.modules.communication.Repositories.MessageRepository;
+import tn.esprit.disasteraidbackend.modules.communication.Repositories.NotificationPreferenceRepository;
+import tn.esprit.disasteraidbackend.modules.communication.Repositories.NotificationRepository;
+import tn.esprit.disasteraidbackend.modules.identity.DTOs.UpdateMyProfileDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserResponseDTO;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
@@ -21,15 +24,21 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final MessageRepository messageRepository;
+    private final NotificationRepository notificationRepository;
+    private final NotificationPreferenceRepository notificationPreferenceRepository;
     private final SecurityService securityService;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        MessageRepository messageRepository,
+                       NotificationRepository notificationRepository,
+                       NotificationPreferenceRepository notificationPreferenceRepository,
                        SecurityService securityService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.messageRepository = messageRepository;
+        this.notificationRepository = notificationRepository;
+        this.notificationPreferenceRepository = notificationPreferenceRepository;
         this.securityService = securityService;
     }
 
@@ -94,13 +103,8 @@ public class UserService {
             throw new RuntimeException("Email already exists");
         }
 
-        // Normal users cannot change role
         if (!securityService.isAdmin(currentUser)) {
             dto.setRole(existingUser.getRole());
-        }
-
-        // Normal users cannot change verification/status flags
-        if (!securityService.isAdmin(currentUser)) {
             dto.setEmailVerified(existingUser.getEmailVerified());
             dto.setPhoneVerified(existingUser.getPhoneVerified());
             dto.setMfaEnabled(existingUser.getMfaEnabled());
@@ -124,12 +128,20 @@ public class UserService {
             throw new RuntimeException("Access denied: only admins can delete users");
         }
 
+        if (currentUser.getUserId().equals(id)) {
+            throw new RuntimeException("You cannot delete your own account");
+        }
+
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User with id " + id + " not found"));
 
         try {
             messageRepository.deleteBySender_UserId(id);
+            notificationRepository.deleteByRecipient_UserId(id);
+            notificationPreferenceRepository.deleteByUser_UserId(id);
+
             userRepository.delete(user);
+
         } catch (DataIntegrityViolationException e) {
             throw new RuntimeException("Cannot delete this user because it is linked to other data");
         }
@@ -141,8 +153,16 @@ public class UserService {
         return UserMapper.toResponseDTO(currentUser);
     }
 
-    public UserResponseDTO updateMyProfile(UserRequestDTO dto) {
+    public UserResponseDTO updateMyProfile(UpdateMyProfileDTO request) {
         User currentUser = securityService.getCurrentUser();
-        return updateUser(currentUser.getUserId(), dto);
+
+        currentUser.setFirstName(request.getFirstName());
+        currentUser.setLastName(request.getLastName());
+        currentUser.setPhone(request.getPhone());
+        currentUser.setLocation(request.getLocation());
+
+        User savedUser = userRepository.save(currentUser);
+        return UserMapper.toResponseDTO(savedUser);
     }
+
 }

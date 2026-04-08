@@ -10,4 +10,5 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification, Integer> {
 
     List<Notification> findByRecipient_UserId(Integer userId);
+    void deleteByRecipient_UserId(Integer userId);
 }

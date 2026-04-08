@@ -14,6 +14,7 @@ import tn.esprit.disasteraidbackend.modules.identity.Mappers.UserMapper;
 import tn.esprit.disasteraidbackend.modules.identity.Repositories.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Service
 public class AuthService {
@@ -22,15 +23,18 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final TokenBlacklistService tokenBlacklistService;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager,
+                       TokenBlacklistService tokenBlacklistService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     public AuthResponseDTO register(UserRequestDTO request) {
@@ -40,20 +44,12 @@ public class AuthService {
 
         User user = UserMapper.toEntity(request);
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-
-        // Secure defaults for public registration
         user.setRole(UserRole.CITIZEN);
         user.setStatus(AccountStatus.ACTIVE);
 
-        if (user.getEmailVerified() == null) {
-            user.setEmailVerified(false);
-        }
-        if (user.getPhoneVerified() == null) {
-            user.setPhoneVerified(false);
-        }
-        if (user.getMfaEnabled() == null) {
-            user.setMfaEnabled(false);
-        }
+        if (user.getEmailVerified() == null) user.setEmailVerified(false);
+        if (user.getPhoneVerified() == null) user.setPhoneVerified(false);
+        if (user.getMfaEnabled() == null) user.setMfaEnabled(false);
 
         User savedUser = userRepository.save(user);
         String jwtToken = jwtService.generateToken(savedUser);
@@ -94,7 +90,15 @@ public class AuthService {
         );
     }
 
-    public String logout() {
-        return "Logout successful. Please remove the token on the client side.";
+    public String logout(String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            throw new RuntimeException("Authorization header is missing or invalid");
+        }
+
+        String token = authHeader.substring(7);
+        Date expirationDate = jwtService.extractExpiration(token);
+        tokenBlacklistService.blacklistToken(token, expirationDate);
+
+        return "Logout successful";
     }
 }

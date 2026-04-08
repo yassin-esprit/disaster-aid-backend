@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.disasteraidbackend.modules.identity.DTOs.UpdateMyProfileDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserResponseDTO;
 import tn.esprit.disasteraidbackend.modules.identity.Services.UserService;
@@ -76,7 +77,8 @@ public class UserController {
     @Operation(summary = "Update current authenticated user profile")
     @PutMapping("/me")
     public ResponseEntity<UserResponseDTO> updateMyProfile(
-            @Valid @RequestBody UserRequestDTO userRequestDTO) {
-        return ResponseEntity.ok(userService.updateMyProfile(userRequestDTO));
+            @Valid @RequestBody UpdateMyProfileDTO request) {
+        return ResponseEntity.ok(userService.updateMyProfile(request));
     }
+
 }
