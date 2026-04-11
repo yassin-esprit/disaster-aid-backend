@@ -36,6 +36,14 @@ public class MessageController {
         return ResponseEntity.ok(messageService.getMyMessages());
     }
 
+    @Operation(summary = "Retrieve messages by conversation ID")
+    @GetMapping("/conversation/{conversationId}")
+    public ResponseEntity<List<MessageResponseDTO>> getByConversation(
+            @Parameter(description = "Conversation ID")
+            @PathVariable Integer conversationId) {
+        return ResponseEntity.ok(messageService.getMessagesByConversation(conversationId));
+    }
+
     @Operation(summary = "Retrieve a message by ID")
     @GetMapping("/{id}")
     public ResponseEntity<MessageResponseDTO> getById(

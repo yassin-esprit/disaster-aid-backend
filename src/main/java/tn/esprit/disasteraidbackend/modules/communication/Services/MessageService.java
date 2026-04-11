@@ -1,5 +1,6 @@
 package tn.esprit.disasteraidbackend.modules.communication.Services;
 
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.disasteraidbackend.modules.communication.DTOs.MessageRequestDTO;
@@ -25,15 +26,18 @@ public class MessageService {
     private final ConversationRepository conversationRepository;
     private final UserRepository userRepository;
     private final SecurityService securityService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     public MessageService(MessageRepository messageRepository,
                           ConversationRepository conversationRepository,
                           UserRepository userRepository,
-                          SecurityService securityService) {
+                          SecurityService securityService,
+                          SimpMessagingTemplate messagingTemplate) {
         this.messageRepository = messageRepository;
         this.conversationRepository = conversationRepository;
         this.userRepository = userRepository;
         this.securityService = securityService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Transactional(readOnly = true)
@@ -97,7 +101,17 @@ public class MessageService {
         Message message = MessageMapper.toEntity(dto, conversation, sender);
         Message savedMessage = messageRepository.save(message);
 
-        return MessageMapper.toResponseDTO(savedMessage);
+        conversation.setLastMessageAt(LocalDateTime.now());
+        conversationRepository.save(conversation);
+
+        MessageResponseDTO responseDTO = MessageMapper.toResponseDTO(savedMessage);
+
+        messagingTemplate.convertAndSend(
+                "/topic/conversations/" + conversation.getConversationId(),
+                responseDTO
+        );
+
+        return responseDTO;
     }
 
     public MessageResponseDTO updateMessage(Integer id, MessageRequestDTO dto) {
@@ -130,7 +144,6 @@ public class MessageService {
 
         MessageMapper.updateEntityFromDTO(existingMessage, dto, conversation, sender);
 
-        // Force original sender/conversation for normal users
         if (!securityService.isAdmin(currentUser)) {
             existingMessage.setConversation(conversation);
             existingMessage.setSender(sender);
@@ -172,6 +185,25 @@ public class MessageService {
                 .filter(message ->
                         message.getSender() != null
                                 && message.getSender().getUserId().equals(currentUser.getUserId()))
+                .map(MessageMapper::toResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MessageResponseDTO> getMessagesByConversation(Integer conversationId) {
+        User currentUser = securityService.getCurrentUser();
+
+        Conversation conversation = conversationRepository.findById(conversationId)
+                .orElseThrow(() -> new RuntimeException("Conversation not found"));
+
+        if (!securityService.isAdmin(currentUser)
+                && (conversation.getParticipantIds() == null
+                || !conversation.getParticipantIds().contains(currentUser.getUserId()))) {
+            throw new RuntimeException("Access denied");
+        }
+
+        return messageRepository.findByConversation_ConversationIdOrderBySentAtAsc(conversationId)
+                .stream()
                 .map(MessageMapper::toResponseDTO)
                 .collect(Collectors.toList());
     }
