@@ -1,5 +1,6 @@
 package tn.esprit.disasteraidbackend.modules.sensor.services;
 
+import org.springframework.data.domain.Pageable;
 import tn.esprit.disasteraidbackend.common.mapper.DTOMapper;
 import tn.esprit.disasteraidbackend.modules.sensor.dto.SensorDataDTO;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.*;
@@ -63,7 +64,7 @@ public class SensorDataService {
         }
     }
 
-    public List<SensorDataDTO> getReadingsBySensorId(Integer sensorId) {
+    public List<SensorDataDTO> getReadingsBySensorId(Integer sensorId, Pageable pageable) {
         Sensor sensor = sensorRepository.findById(sensorId)
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
         return sensorDataRepository.findBySensor(sensor).stream()

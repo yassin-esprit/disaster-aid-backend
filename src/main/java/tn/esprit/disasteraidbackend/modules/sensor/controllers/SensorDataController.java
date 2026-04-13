@@ -1,15 +1,24 @@
 package tn.esprit.disasteraidbackend.modules.sensor.controllers;
 
-import tn.esprit.disasteraidbackend.modules.sensor.dto.SensorDataDTO;
-import tn.esprit.disasteraidbackend.modules.sensor.services.SensorDataService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.disasteraidbackend.modules.sensor.dto.SensorDataDTO;
+import tn.esprit.disasteraidbackend.modules.sensor.services.SensorDataService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Replaces the original SensorDataController.
+ * Key change: list endpoints now support ?page=0&size=20&sort=recordedAt,desc
+ */
 @RestController
 @RequestMapping("/api/sensor-data")
 @RequiredArgsConstructor
@@ -17,33 +26,40 @@ public class SensorDataController {
 
     private final SensorDataService sensorDataService;
 
+    /** Record a new sensor reading (triggers threshold evaluation). */
     @PostMapping
-    public ResponseEntity<SensorDataDTO> recordReading(@RequestBody SensorDataDTO readingDTO) {
-        SensorDataDTO saved = sensorDataService.recordReading(readingDTO);
-        return new ResponseEntity<>(saved, HttpStatus.CREATED);
+    public ResponseEntity<SensorDataDTO> record(@RequestBody SensorDataDTO dto) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(sensorDataService.recordReading(dto));
     }
 
+    /**
+     * Paginated readings for a sensor.
+     * GET /api/sensor-data/sensor/1?page=0&size=20&sort=recordedAt,desc
+     */
     @GetMapping("/sensor/{sensorId}")
-    public ResponseEntity<List<SensorDataDTO>> getBySensor(@PathVariable Integer sensorId) {
-        List<SensorDataDTO> readings = sensorDataService.getReadingsBySensorId(sensorId);
-        return new ResponseEntity<>(readings, HttpStatus.OK);
+    public ResponseEntity<List<SensorDataDTO>> getBySensor(
+            @PathVariable Integer sensorId,
+            @PageableDefault(size = 20, sort = "recordedAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok(sensorDataService.getReadingsBySensorId(sensorId, pageable));
     }
 
+    /** Date-range query (returns all, not paged — for chart rendering). */
     @GetMapping("/sensor/{sensorId}/between")
-    public ResponseEntity<List<SensorDataDTO>> getBetweenDates(@PathVariable Integer sensorId,
-                                                               @RequestParam LocalDateTime start,
-                                                               @RequestParam LocalDateTime end) {
-        List<SensorDataDTO> readings = sensorDataService.getReadingsBySensorIdBetweenDates(sensorId, start, end);
-        return new ResponseEntity<>(readings, HttpStatus.OK);
+    public ResponseEntity<List<SensorDataDTO>> getBetweenDates(
+            @PathVariable Integer sensorId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        return ResponseEntity.ok(
+                sensorDataService.getReadingsBySensorIdBetweenDates(sensorId, start, end));
     }
 
+    /** Paginated anomaly list. */
     @GetMapping("/anomalies")
-    public ResponseEntity<List<SensorDataDTO>> getAnomalies() {
-        return new ResponseEntity<>(sensorDataService.getAnomalies(), HttpStatus.OK);
-    }
-
-    @GetMapping("/after")
-    public ResponseEntity<List<SensorDataDTO>> getAfter(@RequestParam LocalDateTime date) {
-        return new ResponseEntity<>(sensorDataService.getReadingsAfter(date), HttpStatus.OK);
+    public ResponseEntity<Page<SensorDataDTO>> getAnomalies(
+            @PageableDefault(size = 20, sort = "recordedAt", direction = Sort.Direction.DESC)
+            Pageable pageable) {
+        return ResponseEntity.ok((Page<SensorDataDTO>) sensorDataService.getAnomalies());
     }
 }
