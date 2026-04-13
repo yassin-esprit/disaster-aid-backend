@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class AlertThresholdDTO {
-    private Integer id;          // changed from Long
+    private Integer id;
     private SensorType sensorType;
     private String parameter;
     private Double warnLevel;

@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class SensorDataDTO {
-    private Integer id;          // changed from Long
-    private Integer sensorId;     // changed from Long
+    private Integer id;
+    private Integer sensorId;
     private Double value;
     private String unit;
     private LocalDateTime recordedAt;

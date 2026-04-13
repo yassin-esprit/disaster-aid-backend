@@ -7,9 +7,20 @@ import java.time.LocalDateTime;
 @Data
 public class EvacuationRouteDTO {
     private Integer id;
+
     private Integer alertId;
+    private String alertTitle;
+
     private Integer toShelterId;
+    private String shelterName;
+
+    private Double fromLatitude;
+    private Double fromLongitude;
+    private Double toLatitude;
+    private Double toLongitude;
+
     private String path;
+    private Double distanceKm;
     private Integer estimatedDurationMin;
     private Integer capacity;
     private RouteStatus status;

@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 @Data
 public class AlertDTO {
-    private Integer id;                      // changed from Long
+    private Integer id;
     private DisasterType disasterType;
     private Severity severity;
     private AlertStatus status;
@@ -14,7 +14,7 @@ public class AlertDTO {
     private String predictedArea2h;
     private String predictedArea6h;
     private Double confidenceScore;
-    private Integer triggerSensorId;          // changed from Long
+    private Integer triggerSensorId;
     private Integer issuedBy;
     private LocalDateTime issuedAt;
     private LocalDateTime resolvedAt;

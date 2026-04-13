@@ -24,9 +24,9 @@ public class ZoneShelterAssignmentService {
     private final GeofenceZoneRepository geofenceZoneRepository;
 
     public ZoneShelterAssignmentDTO createAssignment(ZoneShelterAssignmentDTO assignmentDTO) {
-        // Convert DTO to entity
+
         ZoneShelterAssignment assignment = DTOMapper.toEntity(assignmentDTO);
-        // Fetch related zone
+
         GeofenceZone zone = geofenceZoneRepository.findById(assignmentDTO.getGeofenceZoneId())
                 .orElseThrow(() -> new RuntimeException("Geofence zone not found"));
         assignment.setGeofenceZone(zone);

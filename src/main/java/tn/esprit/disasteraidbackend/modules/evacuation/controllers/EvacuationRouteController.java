@@ -19,8 +19,7 @@ public class EvacuationRouteController {
 
     @PostMapping
     public ResponseEntity<EvacuationRouteDTO> createRoute(@RequestBody EvacuationRouteDTO routeDTO) {
-        EvacuationRouteDTO created = evacuationRouteService.createRoute(routeDTO);
-        return new ResponseEntity<>(created, HttpStatus.CREATED);
+        return new ResponseEntity<>(evacuationRouteService.createRoute(routeDTO), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -51,10 +50,19 @@ public class EvacuationRouteController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EvacuationRouteDTO> updateRoute(@PathVariable Integer id, @RequestBody EvacuationRouteDTO routeDTO) {
+    public ResponseEntity<EvacuationRouteDTO> updateRoute(
+            @PathVariable Integer id, @RequestBody EvacuationRouteDTO routeDTO) {
         try {
-            EvacuationRouteDTO updated = evacuationRouteService.updateRoute(id, routeDTO);
-            return new ResponseEntity<>(updated, HttpStatus.OK);
+            return new ResponseEntity<>(evacuationRouteService.updateRoute(id, routeDTO), HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PatchMapping("/{id}/recompute")
+    public ResponseEntity<EvacuationRouteDTO> recomputeRoute(@PathVariable Integer id) {
+        try {
+            return new ResponseEntity<>(evacuationRouteService.recomputeRoute(id), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -63,8 +71,7 @@ public class EvacuationRouteController {
     @PatchMapping("/{id}/activate")
     public ResponseEntity<EvacuationRouteDTO> activateRoute(@PathVariable Integer id) {
         try {
-            EvacuationRouteDTO activated = evacuationRouteService.activateRoute(id);
-            return new ResponseEntity<>(activated, HttpStatus.OK);
+            return new ResponseEntity<>(evacuationRouteService.activateRoute(id), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -73,8 +80,7 @@ public class EvacuationRouteController {
     @PatchMapping("/{id}/close")
     public ResponseEntity<EvacuationRouteDTO> closeRoute(@PathVariable Integer id) {
         try {
-            EvacuationRouteDTO closed = evacuationRouteService.closeRoute(id);
-            return new ResponseEntity<>(closed, HttpStatus.OK);
+            return new ResponseEntity<>(evacuationRouteService.closeRoute(id), HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }

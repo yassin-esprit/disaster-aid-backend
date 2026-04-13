@@ -22,8 +22,26 @@ public class EvacuationRoute extends BaseEntity {
     @Column(name = "to_shelter_id")
     private Integer toShelterId;
 
+    @Column(name = "shelter_name")
+    private String shelterName;
+
+    @Column(name = "from_latitude")
+    private Double fromLatitude;
+
+    @Column(name = "from_longitude")
+    private Double fromLongitude;
+
+    @Column(name = "to_latitude")
+    private Double toLatitude;
+
+    @Column(name = "to_longitude")
+    private Double toLongitude;
+
     @Column(columnDefinition = "GEOMETRY(LINESTRING, 4326)", nullable = false)
     private LineString path;
+
+    @Column(name = "distance_km")
+    private Double distanceKm;
 
     private Integer estimatedDurationMin;
 

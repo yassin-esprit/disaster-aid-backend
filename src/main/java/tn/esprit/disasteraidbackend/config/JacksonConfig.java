@@ -11,7 +11,6 @@ public class JacksonConfig {
 
     @Bean
     public ObjectMapper objectMapper(Jackson2ObjectMapperBuilder builder) {
-        System.out.println(">>> JacksonConfig: registering JtsModule");
         ObjectMapper mapper = builder.createXmlMapper(false).build();
         mapper.registerModule(new JtsModule());
         return mapper;

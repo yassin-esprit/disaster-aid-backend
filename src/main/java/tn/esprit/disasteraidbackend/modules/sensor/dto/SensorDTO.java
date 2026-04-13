@@ -8,7 +8,7 @@ import java.time.LocalDate;
 
 @Data
 public class SensorDTO {
-    private Integer id;          // changed from Long
+    private Integer id;
     private String name;
     private SensorType type;
     private String location;

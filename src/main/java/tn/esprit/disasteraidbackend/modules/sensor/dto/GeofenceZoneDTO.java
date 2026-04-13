@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class GeofenceZoneDTO {
-    private Integer id;          // changed from Long
-    private Integer alertId;      // changed from Long
+    private Integer id;
+    private Integer alertId;
     private String polygon;
     private ZoneType zoneType;
     private Double radius;

@@ -5,8 +5,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class ZoneShelterAssignmentDTO {
-    private Integer id;          // changed from Long
-    private Integer geofenceZoneId; // changed from Long
+    private Integer id;
+    private Integer geofenceZoneId;
     private Integer shelterId;
     private Integer priority;
     private Integer estimatedUsersCount;

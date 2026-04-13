@@ -7,16 +7,10 @@ import tn.esprit.disasteraidbackend.modules.evacuation.entities.*;
 import tn.esprit.disasteraidbackend.modules.sensor.dto.*;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.*;
 
-/**
- * Utility class for converting between JPA entities and DTOs.
- * Geometry fields are represented as WKT strings in DTOs.
- * Relationship fields are represented by IDs (Integer) in DTOs.
- */
 public final class DTOMapper {
 
     private DTOMapper() {}
 
-    // Geometry helpers
     public static String toWKT(Geometry geometry) {
         return geometry != null ? geometry.toText() : null;
     }
@@ -30,7 +24,6 @@ public final class DTOMapper {
         }
     }
 
-    // ==================== Alert ====================
     public static AlertDTO toDTO(Alert entity) {
         if (entity == null) return null;
         AlertDTO dto = new AlertDTO();
@@ -62,7 +55,6 @@ public final class DTOMapper {
         entity.setPredictedArea2h((Polygon) fromWKT(dto.getPredictedArea2h(), geometryFactory));
         entity.setPredictedArea6h((Polygon) fromWKT(dto.getPredictedArea6h(), geometryFactory));
         entity.setConfidenceScore(dto.getConfidenceScore());
-        // triggerSensor must be set separately
         entity.setIssuedBy(dto.getIssuedBy());
         entity.setIssuedAt(dto.getIssuedAt());
         entity.setResolvedAt(dto.getResolvedAt());
@@ -71,7 +63,6 @@ public final class DTOMapper {
         return entity;
     }
 
-    // ==================== AlertThreshold ====================
     public static AlertThresholdDTO toDTO(AlertThreshold entity) {
         if (entity == null) return null;
         AlertThresholdDTO dto = new AlertThresholdDTO();
@@ -98,7 +89,6 @@ public final class DTOMapper {
         return entity;
     }
 
-    // ==================== GeofenceZone ====================
     public static GeofenceZoneDTO toDTO(GeofenceZone entity) {
         if (entity == null) return null;
         GeofenceZoneDTO dto = new GeofenceZoneDTO();
@@ -116,7 +106,6 @@ public final class DTOMapper {
         if (dto == null) return null;
         GeofenceZone entity = new GeofenceZone();
         entity.setId(dto.getId());
-        // alert must be set separately
         entity.setPolygon((Polygon) fromWKT(dto.getPolygon(), geometryFactory));
         entity.setZoneType(dto.getZoneType());
         entity.setRadius(dto.getRadius());
@@ -125,7 +114,6 @@ public final class DTOMapper {
         return entity;
     }
 
-    // ==================== Sensor ====================
     public static SensorDTO toDTO(Sensor entity) {
         if (entity == null) return null;
         SensorDTO dto = new SensorDTO();
@@ -156,7 +144,6 @@ public final class DTOMapper {
         return entity;
     }
 
-    // ==================== SensorData ====================
     public static SensorDataDTO toDTO(SensorData entity) {
         if (entity == null) return null;
         SensorDataDTO dto = new SensorDataDTO();
@@ -174,7 +161,6 @@ public final class DTOMapper {
         if (dto == null) return null;
         SensorData entity = new SensorData();
         entity.setId(dto.getId());
-        // sensor must be set separately
         entity.setValue(dto.getValue());
         entity.setUnit(dto.getUnit());
         entity.setRecordedAt(dto.getRecordedAt());
@@ -183,14 +169,20 @@ public final class DTOMapper {
         return entity;
     }
 
-    // ==================== EvacuationRoute ====================
     public static EvacuationRouteDTO toDTO(EvacuationRoute entity) {
         if (entity == null) return null;
         EvacuationRouteDTO dto = new EvacuationRouteDTO();
         dto.setId(entity.getId());
         dto.setAlertId(entity.getAlert() != null ? entity.getAlert().getId() : null);
+        dto.setAlertTitle(entity.getAlert() != null ? entity.getAlert().getTitle() : null);
         dto.setToShelterId(entity.getToShelterId());
+        dto.setShelterName(entity.getShelterName());
+        dto.setFromLatitude(entity.getFromLatitude());
+        dto.setFromLongitude(entity.getFromLongitude());
+        dto.setToLatitude(entity.getToLatitude());
+        dto.setToLongitude(entity.getToLongitude());
         dto.setPath(toWKT(entity.getPath()));
+        dto.setDistanceKm(entity.getDistanceKm());
         dto.setEstimatedDurationMin(entity.getEstimatedDurationMin());
         dto.setCapacity(entity.getCapacity());
         dto.setStatus(entity.getStatus());
@@ -199,22 +191,6 @@ public final class DTOMapper {
         return dto;
     }
 
-    public static EvacuationRoute toEntity(EvacuationRouteDTO dto, GeometryFactory geometryFactory) {
-        if (dto == null) return null;
-        EvacuationRoute entity = new EvacuationRoute();
-        entity.setId(dto.getId());
-        // alert must be set separately
-        entity.setToShelterId(dto.getToShelterId());
-        entity.setPath((LineString) fromWKT(dto.getPath(), geometryFactory));
-        entity.setEstimatedDurationMin(dto.getEstimatedDurationMin());
-        entity.setCapacity(dto.getCapacity());
-        entity.setStatus(dto.getStatus());
-        entity.setActivatedAt(dto.getActivatedAt());
-        entity.setClosedAt(dto.getClosedAt());
-        return entity;
-    }
-
-    // ==================== RouteCheckpoint ====================
     public static RouteCheckpointDTO toDTO(RouteCheckpoint entity) {
         if (entity == null) return null;
         RouteCheckpointDTO dto = new RouteCheckpointDTO();
@@ -232,7 +208,6 @@ public final class DTOMapper {
         if (dto == null) return null;
         RouteCheckpoint entity = new RouteCheckpoint();
         entity.setId(dto.getId());
-        // route must be set separately
         entity.setLocation((Point) fromWKT(dto.getLocation(), geometryFactory));
         entity.setLabel(dto.getLabel());
         entity.setType(dto.getType());
@@ -241,7 +216,6 @@ public final class DTOMapper {
         return entity;
     }
 
-    // ==================== ZoneShelterAssignment ====================
     public static ZoneShelterAssignmentDTO toDTO(ZoneShelterAssignment entity) {
         if (entity == null) return null;
         ZoneShelterAssignmentDTO dto = new ZoneShelterAssignmentDTO();
@@ -258,7 +232,6 @@ public final class DTOMapper {
         if (dto == null) return null;
         ZoneShelterAssignment entity = new ZoneShelterAssignment();
         entity.setId(dto.getId());
-        // geofenceZone must be set separately
         entity.setShelterId(dto.getShelterId());
         entity.setPriority(dto.getPriority());
         entity.setEstimatedUsersCount(dto.getEstimatedUsersCount());

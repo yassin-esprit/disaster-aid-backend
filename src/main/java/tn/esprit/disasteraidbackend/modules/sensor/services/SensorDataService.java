@@ -1,5 +1,6 @@
 package tn.esprit.disasteraidbackend.modules.sensor.services;
 
+import org.springframework.data.domain.Pageable;
 import tn.esprit.disasteraidbackend.common.mapper.DTOMapper;
 import tn.esprit.disasteraidbackend.modules.sensor.dto.SensorDataDTO;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.*;
@@ -26,22 +27,22 @@ public class SensorDataService {
     private final AlertService alertService;
 
     public SensorDataDTO recordReading(SensorDataDTO readingDTO) {
-        // Convert DTO to entity
+
         SensorData reading = DTOMapper.toEntity(readingDTO);
-        // Fetch and set sensor
+
         Sensor sensor = sensorRepository.findById(readingDTO.getSensorId())
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
         reading.setSensor(sensor);
         reading.setRecordedAt(LocalDateTime.now());
 
-        // Simple anomaly detection
+
         if (reading.getValue() > 1000) {
             reading.setIsAnomaly(true);
         }
 
         SensorData saved = sensorDataRepository.save(reading);
 
-        // Evaluate thresholds and trigger alerts (internal method works with entity)
+
         evaluateAndTriggerAlert(saved);
 
         return DTOMapper.toDTO(saved);
@@ -63,7 +64,7 @@ public class SensorDataService {
         }
     }
 
-    public List<SensorDataDTO> getReadingsBySensorId(Integer sensorId) {
+    public List<SensorDataDTO> getReadingsBySensorId(Integer sensorId, Pageable pageable) {
         Sensor sensor = sensorRepository.findById(sensorId)
                 .orElseThrow(() -> new RuntimeException("Sensor not found"));
         return sensorDataRepository.findBySensor(sensor).stream()

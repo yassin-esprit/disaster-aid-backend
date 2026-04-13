@@ -7,6 +7,8 @@ import tn.esprit.disasteraidbackend.modules.sensor.repositories.AlertRepository;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +26,7 @@ public class AlertService {
     private final SensorRepository sensorRepository;
     private final GeometryFactory geometryFactory;
 
+    @CacheEvict(value = "alerts", allEntries = true)
     public AlertDTO createAlert(AlertDTO alertDTO) {
         Alert alert = DTOMapper.toEntity(alertDTO, geometryFactory);
         if (alertDTO.getTriggerSensorId() != null) {
@@ -37,16 +40,15 @@ public class AlertService {
         return DTOMapper.toDTO(saved);
     }
 
-    // Internal convenience method (returns entity, used by SensorDataService)
+    @CacheEvict(value = "alerts", allEntries = true)
     public Alert createAlertFromSensor(Sensor sensor, Alert.Severity severity, SensorData reading) {
         Alert alert = new Alert();
-        // Map sensor type to disaster type (simplified)
         switch (sensor.getType()) {
-            case SEISMIC -> alert.setDisasterType(Alert.DisasterType.EARTHQUAKE);
-            case FLOOD_GAUGE -> alert.setDisasterType(Alert.DisasterType.FLOOD);
-            case FIRE_SMOKE -> alert.setDisasterType(Alert.DisasterType.WILDFIRE);
-            case WEATHER -> alert.setDisasterType(Alert.DisasterType.STORM);
-            default -> alert.setDisasterType(Alert.DisasterType.CHEMICAL);
+            case SEISMIC      -> alert.setDisasterType(Alert.DisasterType.EARTHQUAKE);
+            case FLOOD_GAUGE  -> alert.setDisasterType(Alert.DisasterType.FLOOD);
+            case FIRE_SMOKE   -> alert.setDisasterType(Alert.DisasterType.WILDFIRE);
+            case WEATHER      -> alert.setDisasterType(Alert.DisasterType.STORM);
+            default           -> alert.setDisasterType(Alert.DisasterType.CHEMICAL);
         }
         alert.setSeverity(severity);
         alert.setTriggerSensor(sensor);
@@ -57,11 +59,13 @@ public class AlertService {
         return alertRepository.save(alert);
     }
 
+    @Cacheable(value = "alerts", key = "#id")
     public Optional<AlertDTO> getAlertById(Integer id) {
         return alertRepository.findById(id)
                 .map(DTOMapper::toDTO);
     }
 
+    @Cacheable(value = "alerts", key = "'all'")
     public List<AlertDTO> getAllAlerts() {
         return alertRepository.findAll().stream()
                 .map(DTOMapper::toDTO)
@@ -92,6 +96,7 @@ public class AlertService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = "alerts", allEntries = true)
     public AlertDTO updateAlert(Integer id, AlertDTO alertDTO) {
         return alertRepository.findById(id).map(alert -> {
             alert.setDisasterType(alertDTO.getDisasterType());
@@ -112,6 +117,7 @@ public class AlertService {
         }).orElseThrow(() -> new RuntimeException("Alert not found"));
     }
 
+    @CacheEvict(value = "alerts", allEntries = true)
     public AlertDTO resolveAlert(Integer id) {
         return alertRepository.findById(id).map(alert -> {
             alert.setStatus(Alert.AlertStatus.RESOLVED);
@@ -120,6 +126,8 @@ public class AlertService {
             return DTOMapper.toDTO(updated);
         }).orElseThrow(() -> new RuntimeException("Alert not found"));
     }
+
+    @CacheEvict(value = "alerts", allEntries = true)
     public void deleteAlert(Integer id) {
         if (!alertRepository.existsById(id)) {
             throw new RuntimeException("Alert not found with id: " + id);

@@ -6,6 +6,8 @@ import tn.esprit.disasteraidbackend.modules.sensor.entities.Sensor;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.GeometryFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class SensorService {
     private final SensorRepository sensorRepository;
     private final GeometryFactory geometryFactory;
 
+    @CacheEvict(value = "sensors", allEntries = true)
     public SensorDTO createSensor(SensorDTO sensorDTO) {
         Sensor sensor = DTOMapper.toEntity(sensorDTO, geometryFactory);
         if (sensor.getLocation() == null) {
@@ -35,11 +38,13 @@ public class SensorService {
         return DTOMapper.toDTO(saved);
     }
 
+    @Cacheable(value = "sensors", key = "#id")
     public Optional<SensorDTO> getSensorById(Integer id) {
         return sensorRepository.findById(id)
                 .map(DTOMapper::toDTO);
     }
 
+    @Cacheable(value = "sensors", key = "'all'")
     public List<SensorDTO> getAllSensors() {
         return sensorRepository.findAll().stream()
                 .map(DTOMapper::toDTO)
@@ -64,6 +69,7 @@ public class SensorService {
                 .collect(Collectors.toList());
     }
 
+    @CacheEvict(value = "sensors", allEntries = true)
     public SensorDTO updateSensor(Integer id, SensorDTO sensorDTO) {
         return sensorRepository.findById(id).map(sensor -> {
             sensor.setName(sensorDTO.getName());
@@ -79,6 +85,7 @@ public class SensorService {
         }).orElseThrow(() -> new RuntimeException("Sensor not found with id: " + id));
     }
 
+    @CacheEvict(value = "sensors", allEntries = true)
     public void deleteSensor(Integer id) {
         if (!sensorRepository.existsById(id)) {
             throw new RuntimeException("Sensor not found with id: " + id);
@@ -86,6 +93,7 @@ public class SensorService {
         sensorRepository.deleteById(id);
     }
 
+    @CacheEvict(value = "sensors", allEntries = true)
     public SensorDTO updateLastPing(Integer id) {
         return sensorRepository.findById(id).map(sensor -> {
             sensor.setLastPingAt(LocalDateTime.now());
