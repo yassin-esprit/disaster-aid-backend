@@ -9,7 +9,7 @@ import tn.esprit.disasteraidbackend.modules.coordination.dto.TaskAssignmentRespo
 import tn.esprit.disasteraidbackend.modules.coordination.service.TaskAssignmentService;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1/assignments")
 @RequiredArgsConstructor
