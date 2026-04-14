@@ -13,4 +13,6 @@ public class IncidentReportRequestDto {
     private String severity;
     private String location;
     private String description;
+    private String status;
+
 }

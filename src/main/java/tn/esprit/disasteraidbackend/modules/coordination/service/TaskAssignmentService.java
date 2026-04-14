@@ -9,6 +9,8 @@ import tn.esprit.disasteraidbackend.modules.coordination.entity.TaskAssignment;
 import tn.esprit.disasteraidbackend.modules.coordination.repository.HelpRequestRepository;
 import tn.esprit.disasteraidbackend.modules.coordination.repository.TaskAssignmentRepository;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,12 +20,10 @@ public class TaskAssignmentService {
 
     private final TaskAssignmentRepository repository;
     private final HelpRequestRepository helpRequestRepository;
+    private final MlMatchingService mlMatchingService;
 
     public List<TaskAssignmentResponseDto> getAll() {
-        return repository.findAll()
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+        return repository.findAll().stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     public TaskAssignmentResponseDto getById(Integer id) {
@@ -32,23 +32,36 @@ public class TaskAssignmentService {
 
     public List<TaskAssignmentResponseDto> getByHelpRequestId(Integer helpRequestId) {
         return repository.findByHelpRequestId(helpRequestId)
-                .stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+                .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     public TaskAssignmentResponseDto create(Integer helpRequestId, TaskAssignmentRequestDto dto) {
         HelpRequest helpRequest = helpRequestRepository.findById(helpRequestId)
-                .orElseThrow(() -> new RuntimeException("HelpRequest not found with id: " + helpRequestId));
+                .orElseThrow(() -> new RuntimeException("HelpRequest not found: " + helpRequestId));
         TaskAssignment assignment = toEntity(dto);
         assignment.setHelpRequest(helpRequest);
         assignment.setStatus("ASSIGNED");
+
+        // Compute ML matching score
+        double mlScore = mlMatchingService.computeScore(helpRequest, dto.getResponderId());
+        assignment.setMlScoreAtAssignment(mlScore);
+
         return toResponse(repository.save(assignment));
     }
 
     public TaskAssignmentResponseDto updateStatus(Integer id, String status) {
         TaskAssignment assignment = findById(id);
+        String previousStatus = assignment.getStatus();
         assignment.setStatus(status);
+
+        // Record response time when responder accepts
+        if ("ACCEPTED".equals(status) && !"ACCEPTED".equals(previousStatus)) {
+            if (assignment.getCreatedAt() != null) {
+                long minutes = ChronoUnit.MINUTES.between(assignment.getCreatedAt(), LocalDateTime.now());
+                assignment.setResponseTimeMin((int) minutes);
+            }
+        }
+
         return toResponse(repository.save(assignment));
     }
 
@@ -59,28 +72,28 @@ public class TaskAssignmentService {
 
     private TaskAssignment findById(Integer id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("TaskAssignment not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("TaskAssignment not found: " + id));
     }
 
     private TaskAssignment toEntity(TaskAssignmentRequestDto dto) {
-        TaskAssignment assignment = new TaskAssignment();
-        assignment.setResponderId(dto.getResponderId());
-        assignment.setMlScoreAtAssignment(dto.getMlScoreAtAssignment());
-        assignment.setNotes(dto.getNotes());
-        return assignment;
+        TaskAssignment a = new TaskAssignment();
+        a.setResponderId(dto.getResponderId());
+        a.setMlScoreAtAssignment(dto.getMlScoreAtAssignment());
+        a.setNotes(dto.getNotes());
+        return a;
     }
 
-    private TaskAssignmentResponseDto toResponse(TaskAssignment assignment) {
+    private TaskAssignmentResponseDto toResponse(TaskAssignment a) {
         TaskAssignmentResponseDto dto = new TaskAssignmentResponseDto();
-        dto.setId(assignment.getId());
-        dto.setHelpRequestId(assignment.getHelpRequest().getId());
-        dto.setResponderId(assignment.getResponderId());
-        dto.setStatus(assignment.getStatus());
-        dto.setMlScoreAtAssignment(assignment.getMlScoreAtAssignment());
-        dto.setResponseTimeMin(assignment.getResponseTimeMin());
-        dto.setNotes(assignment.getNotes());
-        dto.setCreatedAt(assignment.getCreatedAt());
-        dto.setUpdatedAt(assignment.getUpdatedAt());
+        dto.setId(a.getId());
+        dto.setHelpRequestId(a.getHelpRequest().getId());
+        dto.setResponderId(a.getResponderId());
+        dto.setStatus(a.getStatus());
+        dto.setMlScoreAtAssignment(a.getMlScoreAtAssignment());
+        dto.setResponseTimeMin(a.getResponseTimeMin());
+        dto.setNotes(a.getNotes());
+        dto.setCreatedAt(a.getCreatedAt());
+        dto.setUpdatedAt(a.getUpdatedAt());
         return dto;
     }
 }

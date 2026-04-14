@@ -58,4 +58,24 @@ public class IncidentReportController {
             @PathVariable String severity) {
         return ResponseEntity.ok(ApiResponse.ok(service.getBySeverity(severity)));
     }
+    @PatchMapping("/{id}/upvote")
+    public ResponseEntity<ApiResponse<IncidentReportResponseDto>> upvote(@PathVariable Integer id) {
+        return ResponseEntity.ok(ApiResponse.ok("Upvoted", service.upvote(id)));
+    }
+
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<ApiResponse<IncidentReportResponseDto>> updateStatus(
+            @PathVariable Integer id,
+            @RequestParam String status) {
+        // reuse update but only change status field
+        IncidentReportRequestDto dto = new IncidentReportRequestDto();
+        // fetch existing first
+        IncidentReportResponseDto existing = service.getById(id);
+        dto.setDisasterType(existing.getDisasterType());
+        dto.setSeverity(existing.getSeverity());
+        dto.setLocation(existing.getLocation());
+        dto.setDescription(existing.getDescription());
+        dto.setStatus(status);
+        return ResponseEntity.ok(ApiResponse.ok("Status updated", service.update(id, dto)));
+    }
 }
