@@ -11,6 +11,7 @@ import tn.esprit.disasteraidbackend.modules.coordination.service.HelpRequestServ
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api/v1/help-requests")
 @RequiredArgsConstructor
 public class HelpRequestController {

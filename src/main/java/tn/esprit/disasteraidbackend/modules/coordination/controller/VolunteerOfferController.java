@@ -9,7 +9,7 @@ import tn.esprit.disasteraidbackend.modules.coordination.dto.VolunteerOfferRespo
 import tn.esprit.disasteraidbackend.modules.coordination.service.VolunteerOfferService;
 
 import java.util.List;
-
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/v1/volunteer-offers")
 @RequiredArgsConstructor
