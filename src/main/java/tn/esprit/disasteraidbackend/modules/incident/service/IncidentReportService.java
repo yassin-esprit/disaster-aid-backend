@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentReportRequestDto;
 import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentReportResponseDto;
+import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentStatusHistoryDto;
 import tn.esprit.disasteraidbackend.modules.incident.entity.IncidentReport;
+import tn.esprit.disasteraidbackend.modules.incident.entity.IncidentStatusHistory;
 import tn.esprit.disasteraidbackend.modules.incident.repository.IncidentReportRepository;
+import tn.esprit.disasteraidbackend.modules.incident.repository.IncidentStatusHistoryRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +18,7 @@ import java.util.stream.Collectors;
 public class IncidentReportService {
 
     private final IncidentReportRepository repository;
+    private final IncidentStatusHistoryRepository historyRepository;
     private final CredibilityService credibilityService;
 
     public List<IncidentReportResponseDto> getAll() {
@@ -29,23 +33,26 @@ public class IncidentReportService {
         IncidentReport report = toEntity(dto);
         report.setStatus("PENDING");
         report.setUpvoteCount(0);
-        // Initial score computed before save (no evidence yet, but sets baseline)
         report.setCredibilityScore(0.0);
         IncidentReport saved = repository.save(report);
-        // Recompute after save so ID exists for evidence lookup
         saved.setCredibilityScore(credibilityService.compute(saved));
-        return toResponse(repository.save(saved));
+        IncidentReport final_ = repository.save(saved);
+        recordHistory(final_.getId(), null, "PENDING", null, "Report created");
+        return toResponse(final_);
     }
 
     public IncidentReportResponseDto update(Integer id, IncidentReportRequestDto dto) {
         IncidentReport existing = findById(id);
+        String oldStatus = existing.getStatus();
         existing.setDisasterType(dto.getDisasterType());
         existing.setSeverity(dto.getSeverity());
         existing.setLocation(dto.getLocation());
         existing.setDescription(dto.getDescription());
         existing.setAlertId(dto.getAlertId());
-        if (dto.getStatus() != null) existing.setStatus(dto.getStatus());
-        // Recompute credibility on every update
+        if (dto.getStatus() != null && !dto.getStatus().equals(oldStatus)) {
+            existing.setStatus(dto.getStatus());
+            recordHistory(id, oldStatus, dto.getStatus(), null, null);
+        }
         existing.setCredibilityScore(credibilityService.compute(existing));
         return toResponse(repository.save(existing));
     }
@@ -63,7 +70,6 @@ public class IncidentReportService {
         return repository.findBySeverity(severity).stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    // ── Upvote ──────────────────────────────────
     public IncidentReportResponseDto upvote(Integer id) {
         IncidentReport report = findById(id);
         report.setUpvoteCount(report.getUpvoteCount() + 1);
@@ -71,7 +77,26 @@ public class IncidentReportService {
         return toResponse(repository.save(report));
     }
 
-    // ── Internal helpers ────────────────────────
+    public List<IncidentStatusHistoryDto> getHistory(Integer id) {
+        return historyRepository
+                .findByIncidentReportIdOrderByChangedAtAsc(id)
+                .stream()
+                .map(this::toHistoryDto)
+                .collect(Collectors.toList());
+    }
+
+    // ── Private helpers ─────────────────────────
+    private void recordHistory(Integer reportId, String from, String to,
+                               Integer changedBy, String note) {
+        IncidentStatusHistory h = new IncidentStatusHistory();
+        h.setIncidentReportId(reportId);
+        h.setFromStatus(from);
+        h.setToStatus(to);
+        h.setChangedBy(changedBy);
+        h.setNote(note);
+        historyRepository.save(h);
+    }
+
     private IncidentReport findById(Integer id) {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("IncidentReport not found: " + id));
@@ -102,6 +127,17 @@ public class IncidentReportService {
         dto.setUpvoteCount(r.getUpvoteCount());
         dto.setCreatedAt(r.getCreatedAt());
         dto.setUpdatedAt(r.getUpdatedAt());
+        return dto;
+    }
+
+    private IncidentStatusHistoryDto toHistoryDto(IncidentStatusHistory h) {
+        IncidentStatusHistoryDto dto = new IncidentStatusHistoryDto();
+        dto.setId(h.getId());
+        dto.setFromStatus(h.getFromStatus());
+        dto.setToStatus(h.getToStatus());
+        dto.setChangedBy(h.getChangedBy());
+        dto.setNote(h.getNote());
+        dto.setChangedAt(h.getChangedAt());
         return dto;
     }
 }
