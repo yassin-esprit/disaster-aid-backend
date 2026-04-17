@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.common.ApiResponse;
 import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentReportRequestDto;
 import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentReportResponseDto;
+import tn.esprit.disasteraidbackend.modules.incident.dto.IncidentStatusHistoryDto;
 import tn.esprit.disasteraidbackend.modules.incident.service.IncidentReportService;
 
 import java.util.List;
@@ -77,5 +78,10 @@ public class IncidentReportController {
         dto.setDescription(existing.getDescription());
         dto.setStatus(status);
         return ResponseEntity.ok(ApiResponse.ok("Status updated", service.update(id, dto)));
+    }
+    @GetMapping("/{id}/history")
+    public ResponseEntity<ApiResponse<List<IncidentStatusHistoryDto>>> getHistory(
+            @PathVariable Integer id) {
+        return ResponseEntity.ok(ApiResponse.ok(service.getHistory(id)));
     }
 }
