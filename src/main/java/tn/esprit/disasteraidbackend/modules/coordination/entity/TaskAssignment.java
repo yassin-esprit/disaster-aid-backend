@@ -31,4 +31,10 @@ public class TaskAssignment extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String notes;
+
+    @Column(name = "completion_note", columnDefinition = "TEXT")
+    private String completionNote;
+
+    @Column(name = "rating")
+    private Integer rating;  // 1-5
 }

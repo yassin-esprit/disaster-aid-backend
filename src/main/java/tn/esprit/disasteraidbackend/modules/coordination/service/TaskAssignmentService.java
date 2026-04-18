@@ -2,6 +2,7 @@ package tn.esprit.disasteraidbackend.modules.coordination.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.disasteraidbackend.modules.coordination.dto.CompleteAssignmentDto;
 import tn.esprit.disasteraidbackend.modules.coordination.dto.TaskAssignmentRequestDto;
 import tn.esprit.disasteraidbackend.modules.coordination.dto.TaskAssignmentResponseDto;
 import tn.esprit.disasteraidbackend.modules.coordination.entity.HelpRequest;
@@ -83,6 +84,7 @@ public class TaskAssignmentService {
         return a;
     }
 
+
     private TaskAssignmentResponseDto toResponse(TaskAssignment a) {
         TaskAssignmentResponseDto dto = new TaskAssignmentResponseDto();
         dto.setId(a.getId());
@@ -92,8 +94,31 @@ public class TaskAssignmentService {
         dto.setMlScoreAtAssignment(a.getMlScoreAtAssignment());
         dto.setResponseTimeMin(a.getResponseTimeMin());
         dto.setNotes(a.getNotes());
+        dto.setCompletionNote(a.getCompletionNote());
+        dto.setRating(a.getRating());
         dto.setCreatedAt(a.getCreatedAt());
         dto.setUpdatedAt(a.getUpdatedAt());
         return dto;
+    }
+
+    public TaskAssignmentResponseDto completeAssignment(Integer id, CompleteAssignmentDto dto) {
+        TaskAssignment assignment = findById(id);
+        String previousStatus = assignment.getStatus();
+
+        if (dto.getRating() != null && (dto.getRating() < 1 || dto.getRating() > 5)) {
+            throw new RuntimeException("Rating must be between 1 and 5");
+        }
+
+        assignment.setStatus("COMPLETED");
+        assignment.setCompletionNote(dto.getCompletionNote());
+        assignment.setRating(dto.getRating());
+
+        // Record response time if not already set
+        if (assignment.getResponseTimeMin() == null && assignment.getCreatedAt() != null) {
+            long minutes = ChronoUnit.MINUTES.between(assignment.getCreatedAt(), LocalDateTime.now());
+            assignment.setResponseTimeMin((int) minutes);
+        }
+
+        return toResponse(repository.save(assignment));
     }
 }

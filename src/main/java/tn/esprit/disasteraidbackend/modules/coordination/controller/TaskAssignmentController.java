@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.common.ApiResponse;
+import tn.esprit.disasteraidbackend.modules.coordination.dto.CompleteAssignmentDto;
 import tn.esprit.disasteraidbackend.modules.coordination.dto.TaskAssignmentRequestDto;
 import tn.esprit.disasteraidbackend.modules.coordination.dto.TaskAssignmentResponseDto;
 import tn.esprit.disasteraidbackend.modules.coordination.service.TaskAssignmentService;
@@ -54,4 +55,13 @@ public class TaskAssignmentController {
         service.delete(id);
         return ResponseEntity.ok(ApiResponse.ok(null));
     }
+
+    @PatchMapping("/{id}/complete")
+    public ResponseEntity<ApiResponse<TaskAssignmentResponseDto>> complete(
+            @PathVariable Integer id,
+            @RequestBody CompleteAssignmentDto dto) {
+        return ResponseEntity.ok(ApiResponse.ok("Assignment completed", service.completeAssignment(id, dto)));
+    }
+
+
 }
