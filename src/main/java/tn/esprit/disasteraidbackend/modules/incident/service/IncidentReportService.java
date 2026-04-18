@@ -10,7 +10,9 @@ import tn.esprit.disasteraidbackend.modules.incident.entity.IncidentStatusHistor
 import tn.esprit.disasteraidbackend.modules.incident.repository.IncidentReportRepository;
 import tn.esprit.disasteraidbackend.modules.incident.repository.IncidentStatusHistoryRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,5 +142,15 @@ public class IncidentReportService {
         dto.setChangedAt(h.getChangedAt());
         return dto;
     }
+    public Optional<IncidentReportResponseDto> findDuplicate(IncidentReportRequestDto dto) {
+        LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
+        return repository.findByDisasterType(dto.getDisasterType())
+                .stream()
+                .filter(r -> "PENDING".equals(r.getStatus()))
+                .filter(r -> r.getCreatedAt() != null && r.getCreatedAt().isAfter(twoHoursAgo))
+                .findFirst()
+                .map(this::toResponse);
+    }
+
 
 }

@@ -19,4 +19,7 @@ public class TaskAssignmentResponseDto {
     private String notes;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    private String completionNote;
+    private Integer rating;
 }

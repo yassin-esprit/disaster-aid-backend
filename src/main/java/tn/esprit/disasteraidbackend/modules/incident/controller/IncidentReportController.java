@@ -86,4 +86,14 @@ public class IncidentReportController {
             @PathVariable Integer id) {
         return ResponseEntity.ok(ApiResponse.ok(service.getHistory(id)));
     }
+
+    @PostMapping("/check-duplicate")
+    public ResponseEntity<ApiResponse<IncidentReportResponseDto>> checkDuplicate(
+            @RequestBody IncidentReportRequestDto dto) {
+        return service.findDuplicate(dto)
+                .map(existing -> ResponseEntity.ok(
+                        ApiResponse.<IncidentReportResponseDto>ok("DUPLICATE_FOUND", existing)))
+                .orElse(ResponseEntity.ok(
+                        ApiResponse.<IncidentReportResponseDto>ok("NO_DUPLICATE", null)));
+    }
 }
