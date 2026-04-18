@@ -20,4 +20,5 @@ public class VolunteerOfferResponseDto {
     private String status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private Double matchScore;
 }

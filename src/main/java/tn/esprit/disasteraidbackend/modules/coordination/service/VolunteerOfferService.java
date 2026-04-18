@@ -4,7 +4,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.disasteraidbackend.modules.coordination.dto.VolunteerOfferRequestDto;
 import tn.esprit.disasteraidbackend.modules.coordination.dto.VolunteerOfferResponseDto;
+import tn.esprit.disasteraidbackend.modules.coordination.entity.HelpRequest;
 import tn.esprit.disasteraidbackend.modules.coordination.entity.VolunteerOffer;
+import tn.esprit.disasteraidbackend.modules.coordination.repository.HelpRequestRepository;
 import tn.esprit.disasteraidbackend.modules.coordination.repository.VolunteerOfferRepository;
 
 import java.util.List;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 public class VolunteerOfferService {
 
     private final VolunteerOfferRepository repository;
+    private final HelpRequestRepository helpRequestRepository;
+    private Double matchScore;
 
     public List<VolunteerOfferResponseDto> getAll() {
         return repository.findAll()
@@ -84,5 +88,48 @@ public class VolunteerOfferService {
         dto.setCreatedAt(offer.getCreatedAt());
         dto.setUpdatedAt(offer.getUpdatedAt());
         return dto;
+    }
+
+
+
+    public List<VolunteerOfferResponseDto> getMatchesForRequest(Integer helpRequestId) {
+        HelpRequest request = helpRequestRepository.findById(helpRequestId)
+                .orElseThrow(() -> new RuntimeException("HelpRequest not found: " + helpRequestId));
+
+        return repository.findByStatus("ACTIVE")
+                .stream()
+                .map(offer -> {
+                    VolunteerOfferResponseDto dto = toResponse(offer);
+                    dto.setMatchScore(computeMatchScore(offer, request));
+                    return dto;
+                })
+                .filter(dto -> dto.getMatchScore() > 0.0)
+                .sorted((a, b) -> Double.compare(b.getMatchScore(), a.getMatchScore()))
+                .collect(Collectors.toList());
+    }
+
+    private double computeMatchScore(VolunteerOffer offer, HelpRequest request) {
+        double score = 0.0;
+
+        // Availability — offer is currently active
+        if ("ACTIVE".equals(offer.getStatus())) score += 0.30;
+
+        // Urgency match — higher urgency = higher score
+        int urgency = request.getUrgency() != null ? request.getUrgency() : 1;
+        score += (urgency / 5.0) * 0.40;
+
+        // Skills keyword match (simple string contains check)
+        String skills = offer.getSkills() != null ? offer.getSkills().toLowerCase() : "";
+        String type   = request.getType()  != null ? request.getType().toLowerCase()  : "";
+        if (!skills.isEmpty() && !type.isEmpty()) {
+            if (skills.contains(type) ||
+                    (type.equals("medical")    && skills.contains("first aid")) ||
+                    (type.equals("rescue")     && skills.contains("rescue"))    ||
+                    (type.equals("evacuation") && skills.contains("transport"))) {
+                score += 0.30;
+            }
+        }
+
+        return Math.min(Math.round(score * 100.0) / 100.0, 1.0);
     }
 }

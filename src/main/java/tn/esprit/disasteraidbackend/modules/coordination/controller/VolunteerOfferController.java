@@ -51,4 +51,10 @@ public class VolunteerOfferController {
             @PathVariable String status) {
         return ResponseEntity.ok(ApiResponse.ok(service.getByStatus(status)));
     }
+
+    @GetMapping("/matches")
+    public ResponseEntity<ApiResponse<List<VolunteerOfferResponseDto>>> getMatches(
+            @RequestParam Integer helpRequestId) {
+        return ResponseEntity.ok(ApiResponse.ok(service.getMatchesForRequest(helpRequestId)));
+    }
 }
