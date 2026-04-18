@@ -59,6 +59,7 @@ public class IncidentReportController {
             @PathVariable String severity) {
         return ResponseEntity.ok(ApiResponse.ok(service.getBySeverity(severity)));
     }
+
     @PatchMapping("/{id}/upvote")
     public ResponseEntity<ApiResponse<IncidentReportResponseDto>> upvote(@PathVariable Integer id) {
         return ResponseEntity.ok(ApiResponse.ok("Upvoted", service.upvote(id)));
@@ -79,6 +80,7 @@ public class IncidentReportController {
         dto.setStatus(status);
         return ResponseEntity.ok(ApiResponse.ok("Status updated", service.update(id, dto)));
     }
+
     @GetMapping("/{id}/history")
     public ResponseEntity<ApiResponse<List<IncidentStatusHistoryDto>>> getHistory(
             @PathVariable Integer id) {

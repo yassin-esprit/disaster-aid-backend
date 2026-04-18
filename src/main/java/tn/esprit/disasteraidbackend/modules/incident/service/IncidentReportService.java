@@ -140,4 +140,5 @@ public class IncidentReportService {
         dto.setChangedAt(h.getChangedAt());
         return dto;
     }
+
 }
