@@ -1,5 +1,6 @@
 package tn.esprit.disasteraidbackend.modules.resourceShelter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ public class Resource {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer resourceId;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;

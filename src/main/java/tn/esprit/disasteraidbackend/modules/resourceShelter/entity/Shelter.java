@@ -1,5 +1,8 @@
 package tn.esprit.disasteraidbackend.modules.resourceShelter.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -28,8 +31,10 @@ public class Shelter {
     @Column(nullable = false)
     private Integer currentOccupancy = 0;
 
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "manager_id", nullable = false)
+    @JsonIgnore
     private User manager;
 
     @Enumerated(EnumType.STRING)
@@ -80,6 +85,14 @@ public class Shelter {
 
     public User getManager() { return manager; }
     public void setManager(User manager) { this.manager = manager; }
+
+    @JsonProperty("managerId")
+    public Integer getManagerId() {
+        if (manager == null) {
+            return null;
+        }
+        return manager.getUserId();
+    }
 
     public ShelterStatus getStatus() { return status; }
     public void setStatus(ShelterStatus status) { this.status = status; }
