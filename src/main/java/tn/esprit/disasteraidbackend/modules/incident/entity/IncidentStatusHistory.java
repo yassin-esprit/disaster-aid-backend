@@ -18,8 +18,16 @@ public class IncidentStatusHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    // Foreign key column (for queries and direct access)
     @Column(name = "incident_report_id", nullable = false)
     private Integer incidentReportId;
+
+    // JPA relationship (for entity navigation - LAZY loading to avoid performance issues)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "incident_report_id", nullable = false,
+            insertable = false, updatable = false,
+            foreignKey = @ForeignKey(name = "fk_history_incident_report"))
+    private IncidentReport incidentReport;
 
     @Column(name = "from_status")
     private String fromStatus;
@@ -28,7 +36,7 @@ public class IncidentStatusHistory {
     private String toStatus;
 
     @Column(name = "changed_by")
-    private Integer changedBy;   // userId — null until auth is integrated
+    private Integer changedBy;
 
     @Column
     private String note;
@@ -36,4 +44,12 @@ public class IncidentStatusHistory {
     @CreationTimestamp
     @Column(name = "changed_at", updatable = false)
     private LocalDateTime changedAt;
+
+    // Convenience method to set both ID and relationship
+    public void setIncidentReport(IncidentReport report) {
+        if (report != null) {
+            this.incidentReportId = report.getId();
+            this.incidentReport = report;
+        }
+    }
 }

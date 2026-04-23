@@ -31,6 +31,14 @@ public class IncidentReportService {
         return toResponse(findById(id));
     }
 
+    public List<IncidentReportResponseDto> getByStatus(String status) {
+        return repository.findByStatus(status).stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
+    public List<IncidentReportResponseDto> getBySeverity(String severity) {
+        return repository.findBySeverity(severity).stream().map(this::toResponse).collect(Collectors.toList());
+    }
+
     public IncidentReportResponseDto create(IncidentReportRequestDto dto) {
         IncidentReport report = toEntity(dto);
         report.setStatus("PENDING");
@@ -38,9 +46,9 @@ public class IncidentReportService {
         report.setCredibilityScore(0.0);
         IncidentReport saved = repository.save(report);
         saved.setCredibilityScore(credibilityService.compute(saved));
-        IncidentReport final_ = repository.save(saved);
-        recordHistory(final_.getId(), null, "PENDING", null, "Report created");
-        return toResponse(final_);
+        IncidentReport finalReport = repository.save(saved);
+        recordHistory(finalReport, null, "PENDING", null, "Report created");
+        return toResponse(finalReport);
     }
 
     public IncidentReportResponseDto update(Integer id, IncidentReportRequestDto dto) {
@@ -51,10 +59,12 @@ public class IncidentReportService {
         existing.setLocation(dto.getLocation());
         existing.setDescription(dto.getDescription());
         existing.setAlertId(dto.getAlertId());
+
         if (dto.getStatus() != null && !dto.getStatus().equals(oldStatus)) {
             existing.setStatus(dto.getStatus());
-            recordHistory(id, oldStatus, dto.getStatus(), null, null);
+            recordHistory(existing, oldStatus, dto.getStatus(), null, null);
         }
+
         existing.setCredibilityScore(credibilityService.compute(existing));
         return toResponse(repository.save(existing));
     }
@@ -64,19 +74,42 @@ public class IncidentReportService {
         repository.deleteById(id);
     }
 
-    public List<IncidentReportResponseDto> getByStatus(String status) {
-        return repository.findByStatus(status).stream().map(this::toResponse).collect(Collectors.toList());
-    }
-
-    public List<IncidentReportResponseDto> getBySeverity(String severity) {
-        return repository.findBySeverity(severity).stream().map(this::toResponse).collect(Collectors.toList());
-    }
-
     public IncidentReportResponseDto upvote(Integer id) {
         IncidentReport report = findById(id);
-        report.setUpvoteCount(report.getUpvoteCount() + 1);
+        int current = report.getUpvoteCount() != null ? report.getUpvoteCount() : 0;
+        report.setUpvoteCount(current + 1);
         report.setCredibilityScore(credibilityService.compute(report));
         return toResponse(repository.save(report));
+    }
+
+    public IncidentReportResponseDto downvote(Integer id) {
+        IncidentReport report = findById(id);
+        int current = report.getUpvoteCount() != null ? report.getUpvoteCount() : 0;
+        report.setUpvoteCount(Math.max(0, current - 1));
+        report.setCredibilityScore(credibilityService.compute(report));
+        return toResponse(repository.save(report));
+    }
+
+    public IncidentReportResponseDto toggleUpvote(Integer id, boolean add) {
+        if (add) {
+            return upvote(id);
+        } else {
+            return downvote(id);
+        }
+    }
+
+    public IncidentReportResponseDto updateStatus(Integer id, String status) {
+        IncidentReport report = findById(id);
+        String oldStatus = report.getStatus();
+
+        if (!status.equals(oldStatus)) {
+            report.setStatus(status);
+            recordHistory(report, oldStatus, status, null, null);
+            report.setCredibilityScore(credibilityService.compute(report));
+            return toResponse(repository.save(report));
+        }
+
+        return toResponse(report);
     }
 
     public List<IncidentStatusHistoryDto> getHistory(Integer id) {
@@ -87,11 +120,21 @@ public class IncidentReportService {
                 .collect(Collectors.toList());
     }
 
-    // ── Private helpers ─────────────────────────
-    private void recordHistory(Integer reportId, String from, String to,
+    public Optional<IncidentReportResponseDto> checkDuplicate(IncidentReportRequestDto dto) {
+        LocalDateTime twoHoursAgo = LocalDateTime.now().minusHours(2);
+        return repository.findByDisasterType(dto.getDisasterType())
+                .stream()
+                .filter(r -> "PENDING".equals(r.getStatus()))
+                .filter(r -> r.getCreatedAt() != null && r.getCreatedAt().isAfter(twoHoursAgo))
+                .findFirst()
+                .map(this::toResponse);
+    }
+
+    // ── Private helpers ─────────────────────────────────────
+    private void recordHistory(IncidentReport report, String from, String to,
                                Integer changedBy, String note) {
         IncidentStatusHistory h = new IncidentStatusHistory();
-        h.setIncidentReportId(reportId);
+        h.setIncidentReport(report);
         h.setFromStatus(from);
         h.setToStatus(to);
         h.setChangedBy(changedBy);
@@ -116,6 +159,8 @@ public class IncidentReportService {
     }
 
     private IncidentReportResponseDto toResponse(IncidentReport r) {
+        if (r == null) return null;
+
         IncidentReportResponseDto dto = new IncidentReportResponseDto();
         dto.setId(r.getId());
         dto.setReporterId(r.getReporterId());
@@ -151,6 +196,4 @@ public class IncidentReportService {
                 .findFirst()
                 .map(this::toResponse);
     }
-
-
 }
