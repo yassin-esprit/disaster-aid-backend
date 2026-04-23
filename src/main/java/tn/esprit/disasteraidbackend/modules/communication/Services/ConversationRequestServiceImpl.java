@@ -2,6 +2,7 @@ package tn.esprit.disasteraidbackend.modules.communication.Services;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tn.esprit.disasteraidbackend.modules.communication.DTOs.AiPredictionResponseDTO;
 import tn.esprit.disasteraidbackend.modules.communication.DTOs.DiscussionRequestCreateDTO;
 import tn.esprit.disasteraidbackend.modules.communication.Entities.*;
 import tn.esprit.disasteraidbackend.modules.communication.Repositories.ConversationRepository;
@@ -23,23 +24,38 @@ public class ConversationRequestServiceImpl implements ConversationRequestServic
     private final ConversationRepository conversationRepository;
     private final NotificationRepository notificationRepository;
     private final UserRepository userRepository;
+    private final AiPredictionService aiPredictionService;
 
     public ConversationRequestServiceImpl(
             ConversationRequestRepository conversationRequestRepository,
             ConversationRepository conversationRepository,
             NotificationRepository notificationRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            AiPredictionService aiPredictionService
     ) {
         this.conversationRequestRepository = conversationRequestRepository;
         this.conversationRepository = conversationRepository;
         this.notificationRepository = notificationRepository;
         this.userRepository = userRepository;
+        this.aiPredictionService = aiPredictionService;
     }
 
     @Override
     public ConversationRequest createRequest(Integer citizenId, DiscussionRequestCreateDTO dto) {
         User citizen = userRepository.findById(citizenId)
                 .orElseThrow(() -> new RuntimeException("Citizen not found with id: " + citizenId));
+
+        AiPredictionResponseDTO aiPrediction = aiPredictionService.predict(
+                dto.getSubject(),
+                dto.getDescription()
+        );
+
+        if (aiPrediction != null) {
+            System.out.println("=== AI PREDICTION ===");
+            System.out.println("Category : " + aiPrediction.getCategory());
+            System.out.println("Priority : " + aiPrediction.getPriority());
+            System.out.println("=====================");
+        }
 
         ConversationRequest request = new ConversationRequest();
         request.setCitizenId(citizenId);
@@ -56,12 +72,25 @@ public class ConversationRequestServiceImpl implements ConversationRequestServic
             Notification notification = new Notification();
             notification.setRecipient(admin);
             notification.setType(NotifType.SYSTEM);
-            notification.setTitle("Nouvelle demande de discussion");
-            notification.setBody("Le citoyen " + citizen.getEmail() + " a envoyé une demande de discussion.");
+
+            String title = "Nouvelle demande de discussion";
+            String body = "Le citoyen " + citizen.getEmail() + " a envoyé une demande de discussion.";
+
+            if (aiPrediction != null) {
+                body += " [IA: " + aiPrediction.getCategory() + " | " + aiPrediction.getPriority() + "]";
+            }
+
+            notification.setTitle(title);
+            notification.setBody(body);
             notification.setChannel(Channel.IN_APP);
             notification.setData("requestId=" + savedRequest.getRequestId());
             notification.setIsRead(false);
-            notification.setIsCritical(false);
+
+            boolean isCritical = aiPrediction != null &&
+                    ("HIGH".equalsIgnoreCase(aiPrediction.getPriority())
+                            || "CRITICAL".equalsIgnoreCase(aiPrediction.getPriority()));
+
+            notification.setIsCritical(isCritical);
 
             notificationRepository.save(notification);
         }
@@ -183,7 +212,10 @@ public class ConversationRequestServiceImpl implements ConversationRequestServic
     private boolean isAdminRole(UserRole role) {
         return role == UserRole.PLATFORM_ADMIN
                 || role == UserRole.ORG_ADMIN
-                || role == UserRole.AGENCY_ADMIN
-                ;
+                || role == UserRole.AGENCY_ADMIN;
+    }
+    @Override
+    public AiPredictionResponseDTO predictRequest(DiscussionRequestCreateDTO dto) {
+        return aiPredictionService.predict(dto.getSubject(), dto.getDescription());
     }
 }

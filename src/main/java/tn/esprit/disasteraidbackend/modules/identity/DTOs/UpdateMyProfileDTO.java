@@ -14,6 +14,10 @@ public class UpdateMyProfileDTO {
 
     private String location;
 
+    private String profilePhoto;
+
+    public String getProfilePhoto() {return profilePhoto;}
+    public void setProfilePhoto(String profilePhoto) {this.profilePhoto = profilePhoto;}
     public String getFirstName() {
         return firstName;
     }
