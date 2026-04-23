@@ -15,6 +15,8 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/api/v1/incidents")
 @RequiredArgsConstructor
+
+
 public class IncidentReportController {
 
     private final IncidentReportService service;
@@ -37,8 +39,7 @@ public class IncidentReportController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<IncidentReportResponseDto>> update(
-            @PathVariable Integer id,
-            @RequestBody IncidentReportRequestDto dto) {
+            @PathVariable Integer id, @RequestBody IncidentReportRequestDto dto) {
         return ResponseEntity.ok(ApiResponse.ok("Incident report updated", service.update(id, dto)));
     }
 
@@ -62,16 +63,18 @@ public class IncidentReportController {
 
     @PatchMapping("/{id}/upvote")
     public ResponseEntity<ApiResponse<IncidentReportResponseDto>> upvote(@PathVariable Integer id) {
-        return ResponseEntity.ok(ApiResponse.ok("Upvoted", service.upvote(id)));
+        return ResponseEntity.ok(ApiResponse.ok("Upvoted", service.toggleUpvote(id, true)));
+    }
+
+    @PatchMapping("/{id}/downvote")
+    public ResponseEntity<ApiResponse<IncidentReportResponseDto>> downvote(@PathVariable Integer id) {
+        return ResponseEntity.ok(ApiResponse.ok("Downvoted", service.toggleUpvote(id, false)));
     }
 
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<IncidentReportResponseDto>> updateStatus(
-            @PathVariable Integer id,
-            @RequestParam String status) {
-        // reuse update but only change status field
+            @PathVariable Integer id, @RequestParam String status) {
         IncidentReportRequestDto dto = new IncidentReportRequestDto();
-        // fetch existing first
         IncidentReportResponseDto existing = service.getById(id);
         dto.setDisasterType(existing.getDisasterType());
         dto.setSeverity(existing.getSeverity());
@@ -81,19 +84,17 @@ public class IncidentReportController {
         return ResponseEntity.ok(ApiResponse.ok("Status updated", service.update(id, dto)));
     }
 
-    @GetMapping("/{id}/history")
-    public ResponseEntity<ApiResponse<List<IncidentStatusHistoryDto>>> getHistory(
-            @PathVariable Integer id) {
-        return ResponseEntity.ok(ApiResponse.ok(service.getHistory(id)));
-    }
-
     @PostMapping("/check-duplicate")
     public ResponseEntity<ApiResponse<IncidentReportResponseDto>> checkDuplicate(
             @RequestBody IncidentReportRequestDto dto) {
         return service.findDuplicate(dto)
-                .map(existing -> ResponseEntity.ok(
-                        ApiResponse.<IncidentReportResponseDto>ok("DUPLICATE_FOUND", existing)))
-                .orElse(ResponseEntity.ok(
-                        ApiResponse.<IncidentReportResponseDto>ok("NO_DUPLICATE", null)));
+                .map(existing -> ResponseEntity.ok(ApiResponse.ok("DUPLICATE_FOUND", existing)))
+                .orElse(ResponseEntity.ok(ApiResponse.ok("NO_DUPLICATE", null)));
+    }
+
+    @GetMapping("/{id}/history")
+    public ResponseEntity<ApiResponse<List<IncidentStatusHistoryDto>>> getHistory(
+            @PathVariable Integer id) {
+        return ResponseEntity.ok(ApiResponse.ok(service.getHistory(id)));
     }
 }
