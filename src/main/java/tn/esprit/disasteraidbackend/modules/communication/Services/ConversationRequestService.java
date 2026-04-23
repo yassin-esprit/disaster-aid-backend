@@ -1,5 +1,6 @@
 package tn.esprit.disasteraidbackend.modules.communication.Services;
 
+import tn.esprit.disasteraidbackend.modules.communication.DTOs.AiPredictionResponseDTO;
 import tn.esprit.disasteraidbackend.modules.communication.DTOs.DiscussionRequestCreateDTO;
 import tn.esprit.disasteraidbackend.modules.communication.Entities.ConversationRequest;
 
@@ -18,4 +19,6 @@ public interface ConversationRequestService {
     ConversationRequest acceptRequest(Integer requestId, Integer adminId);
 
     ConversationRequest rejectRequest(Integer requestId, Integer adminId);
+
+    AiPredictionResponseDTO predictRequest(DiscussionRequestCreateDTO dto);
 }

@@ -4,6 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.disasteraidbackend.modules.communication.Repositories.MessageRepository;
 import tn.esprit.disasteraidbackend.modules.communication.Repositories.NotificationPreferenceRepository;
 import tn.esprit.disasteraidbackend.modules.communication.Repositories.NotificationRepository;
@@ -14,6 +15,7 @@ import tn.esprit.disasteraidbackend.modules.identity.Entities.User;
 import tn.esprit.disasteraidbackend.modules.identity.Mappers.UserMapper;
 import tn.esprit.disasteraidbackend.modules.identity.Repositories.UserRepository;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,19 +29,21 @@ public class UserService {
     private final NotificationRepository notificationRepository;
     private final NotificationPreferenceRepository notificationPreferenceRepository;
     private final SecurityService securityService;
+    private final FileService fileService;
 
     public UserService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        MessageRepository messageRepository,
                        NotificationRepository notificationRepository,
                        NotificationPreferenceRepository notificationPreferenceRepository,
-                       SecurityService securityService) {
+                       SecurityService securityService, FileService fileService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.messageRepository = messageRepository;
         this.notificationRepository = notificationRepository;
         this.notificationPreferenceRepository = notificationPreferenceRepository;
         this.securityService = securityService;
+        this.fileService = fileService;
     }
 
     @Transactional(readOnly = true)
@@ -153,16 +157,24 @@ public class UserService {
         return UserMapper.toResponseDTO(currentUser);
     }
 
-    public UserResponseDTO updateMyProfile(UpdateMyProfileDTO request) {
+    public UserResponseDTO updateMyProfile(UpdateMyProfileDTO request, MultipartFile profilePhoto) {
         User currentUser = securityService.getCurrentUser();
-
         currentUser.setFirstName(request.getFirstName());
         currentUser.setLastName(request.getLastName());
         currentUser.setPhone(request.getPhone());
         currentUser.setLocation(request.getLocation());
 
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+            String imageUrl;
+            try {
+                imageUrl = fileService.uploadProfileImage(profilePhoto);
+            } catch (IOException e) {
+                throw new RuntimeException("Error uploading profile photo: " + e.getMessage(), e);
+            }
+            currentUser.setProfilePhoto(imageUrl);
+        }
+
         User savedUser = userRepository.save(currentUser);
         return UserMapper.toResponseDTO(savedUser);
     }
-
 }

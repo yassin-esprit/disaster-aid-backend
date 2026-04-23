@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.modules.communication.DTOs.DiscussionRequestCreateDTO;
 import tn.esprit.disasteraidbackend.modules.communication.Entities.ConversationRequest;
 import tn.esprit.disasteraidbackend.modules.communication.Services.ConversationRequestService;
-
+import tn.esprit.disasteraidbackend.modules.communication.DTOs.AiPredictionResponseDTO;
 import java.util.List;
 
 @RestController
@@ -59,5 +59,12 @@ public class ConversationRequestController {
     ) {
         ConversationRequest updatedRequest = conversationRequestService.rejectRequest(requestId, adminId);
         return ResponseEntity.ok(updatedRequest);
+    }
+    @PostMapping("/predict")
+    public ResponseEntity<AiPredictionResponseDTO> predictRequest(
+            @RequestBody DiscussionRequestCreateDTO dto
+    ) {
+        AiPredictionResponseDTO prediction = conversationRequestService.predictRequest(dto);
+        return ResponseEntity.ok(prediction);
     }
 }
