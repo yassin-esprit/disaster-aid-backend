@@ -207,9 +207,12 @@ public class User {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+
+        // Modifier cette ligne
         if (role == null) {
-            role = UserRole.CITIZEN;
+            role = UserRole.CITIZEN;  // Assurez-vous que 'role' soit défini par le front-end.
         }
+
         if (status == null) {
             status = AccountStatus.ACTIVE;
         }
@@ -222,5 +225,4 @@ public class User {
         if (mfaEnabled == null) {
             mfaEnabled = false;
         }
-    }
-}
+    }}

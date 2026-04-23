@@ -120,6 +120,13 @@ public class ConversationService {
     public List<ConversationResponseDTO> getMyConversations() {
         User currentUser = securityService.getCurrentUser();
 
+        if (securityService.isAdmin(currentUser)) {
+            return conversationRepository.findAll()
+                    .stream()
+                    .map(ConversationMapper::toResponseDTO)
+                    .collect(Collectors.toList());
+        }
+
         return conversationRepository.findAll()
                 .stream()
                 .filter(conversation ->

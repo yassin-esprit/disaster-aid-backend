@@ -5,9 +5,11 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UpdateMyProfileDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
 import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserResponseDTO;
@@ -15,9 +17,9 @@ import tn.esprit.disasteraidbackend.modules.identity.Services.UserService;
 
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
 @RestController
 @RequestMapping("/identity-access/users")
-@CrossOrigin("*")
 @Tag(name = "User", description = "User management")
 public class UserController {
 
@@ -35,7 +37,7 @@ public class UserController {
     }
 
     @Operation(summary = "Retrieve a user by ID")
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     public ResponseEntity<UserResponseDTO> getUserById(
             @Parameter(description = "User ID")
             @PathVariable Integer id) {
@@ -50,7 +52,7 @@ public class UserController {
     }
 
     @Operation(summary = "Update a user")
-    @PutMapping("/{id}")
+    @PutMapping(path = "/{id:\\d+}")
     public ResponseEntity<UserResponseDTO> updateUser(
             @Parameter(description = "User ID to update")
             @PathVariable Integer id,
@@ -60,7 +62,7 @@ public class UserController {
 
     @Operation(summary = "Delete a user by ID")
     @PreAuthorize("hasAnyRole('PLATFORM_ADMIN','ORG_ADMIN','AGENCY_ADMIN')")
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id:\\d+}")
     public ResponseEntity<Void> removeUser(
             @Parameter(description = "User ID to delete")
             @PathVariable Integer id) {
@@ -74,11 +76,15 @@ public class UserController {
         return ResponseEntity.ok(userService.getMyProfile());
     }
 
-    @Operation(summary = "Update current authenticated user profile")
-    @PutMapping("/me")
+    @Operation(summary = "Update current authenticated user profile with profile image")
+    @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UserResponseDTO> updateMyProfile(
-            @Valid @RequestBody UpdateMyProfileDTO request) {
-        return ResponseEntity.ok(userService.updateMyProfile(request));
+            @RequestPart("request") @Valid UpdateMyProfileDTO request,
+            @RequestPart(value = "profilePhoto", required = false) MultipartFile profilePhoto) {
+
+        UserResponseDTO updated = userService.updateMyProfile(request, profilePhoto);
+        return ResponseEntity.ok(updated);
     }
+
 
 }

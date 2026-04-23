@@ -42,18 +42,34 @@ public class AuthService {
             throw new RuntimeException("Email already exists");
         }
 
+        // Mapper DTO → Entity
         User user = UserMapper.toEntity(request);
-        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setRole(UserRole.CITIZEN);
-        user.setStatus(AccountStatus.ACTIVE);
 
+        // Password
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+
+        // ✅ Correction ici : ne pas forcer CITIZEN
+        user.setRole(
+                request.getRole() != null ? request.getRole() : UserRole.CITIZEN
+        );
+
+        // Status par défaut
+        user.setStatus(
+                request.getStatus() != null ? request.getStatus() : AccountStatus.ACTIVE
+        );
+
+        // Sécurité (valeurs par défaut)
         if (user.getEmailVerified() == null) user.setEmailVerified(false);
         if (user.getPhoneVerified() == null) user.setPhoneVerified(false);
         if (user.getMfaEnabled() == null) user.setMfaEnabled(false);
 
+        // Save
         User savedUser = userRepository.save(user);
+
+        // Génération JWT
         String jwtToken = jwtService.generateToken(savedUser);
 
+        // Response
         return new AuthResponseDTO(
                 jwtToken,
                 "Bearer",
@@ -63,7 +79,6 @@ public class AuthService {
                 "User registered successfully"
         );
     }
-
     public AuthResponseDTO login(LoginRequestDTO request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(

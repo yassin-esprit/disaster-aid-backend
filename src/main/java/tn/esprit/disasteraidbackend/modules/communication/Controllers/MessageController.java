@@ -13,7 +13,7 @@ import tn.esprit.disasteraidbackend.modules.communication.Services.MessageServic
 import java.util.List;
 
 @RestController
-@RequestMapping("/communication/messages")
+@RequestMapping({"/communication/messages", "/api/messages"})
 @CrossOrigin("*")
 @Tag(name = "Message", description = "Message management")
 public class MessageController {

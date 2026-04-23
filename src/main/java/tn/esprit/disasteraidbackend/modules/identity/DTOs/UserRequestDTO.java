@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.AccountStatus;
 import tn.esprit.disasteraidbackend.modules.identity.Entities.UserRole;
+import jakarta.validation.constraints.NotNull;
 
 public class UserRequestDTO {
 
@@ -17,6 +18,7 @@ public class UserRequestDTO {
     @NotBlank(message = "Password is required")
     @Size(min = 8, max = 255, message = "Password must be between 8 and 255 characters")
     private String password;
+    @NotNull(message = "Role is required")
 
     private UserRole role;
 
