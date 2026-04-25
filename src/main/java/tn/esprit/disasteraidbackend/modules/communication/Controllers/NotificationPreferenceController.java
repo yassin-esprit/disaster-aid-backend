@@ -13,7 +13,7 @@ import tn.esprit.disasteraidbackend.modules.communication.Services.NotificationP
 import java.util.List;
 
 @RestController
-@RequestMapping("/communication/preferences")
+@RequestMapping("/api/communication/preferences")
 @CrossOrigin("*")
 @Tag(name = "Notification Preference", description = "Notification preference management")
 public class NotificationPreferenceController {

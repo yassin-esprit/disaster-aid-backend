@@ -2,6 +2,7 @@ package tn.esprit.disasteraidbackend.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -14,8 +15,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import tn.esprit.disasteraidbackend.modules.identity.Security.JwtAuthenticationFilter;
 import tn.esprit.disasteraidbackend.modules.identity.Security.OAuth2LoginSuccessHandler;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableMethodSecurity
@@ -37,6 +43,21 @@ public class SecurityConfig {
      * Les fichiers statiques (photos de profil) sont ainsi accessibles
      * sans authentification, sans redirection vers /login.
      */
+
+    @Bean
+    @Primary
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowCredentials(true);
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:4200")); // your frontend origin
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers("/uploads/**");
@@ -54,20 +75,20 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/auth/login",
-                                "/auth/register",
-                                "/auth/logout",
-                                "/auth/forgot-password",
-                                "/auth/verify-reset-code",
-                                "/auth/reset-password",
-                                "/uploads/**",
-                                "/oauth2/**",
-                                "/login/oauth2/**",
-                                "/login/**",
-                                "/ws-chat/**",
-                                "/v3/api-docs/**",
-                                "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/logout",
+                                "/api/auth/forgot-password",
+                                "/api/auth/verify-reset-code",
+                                "/api/auth/reset-password",
+                                "/api/uploads/**",
+                                "/api/oauth2/**",
+                                "/api/login/oauth2/**",
+                                "/api/login/**",
+                                "/api/ws-chat/**",
+                                "/api/v3/api-docs/**",
+                                "/api/swagger-ui/**",
+                                "/api/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

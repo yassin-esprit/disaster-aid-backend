@@ -8,7 +8,7 @@ import tn.esprit.disasteraidbackend.modules.identity.DTOs.VerifyCodeRequest;
 import tn.esprit.disasteraidbackend.modules.identity.Services.PasswordResetService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @CrossOrigin(origins = "http://localhost:4200", allowCredentials = "true")
 public class PasswordResetController {
 

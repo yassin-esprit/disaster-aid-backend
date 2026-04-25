@@ -19,7 +19,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
 @RestController
-@RequestMapping("/identity-access/users")
+@RequestMapping("/api/identity-access/users")
 @Tag(name = "User", description = "User management")
 public class UserController {
 

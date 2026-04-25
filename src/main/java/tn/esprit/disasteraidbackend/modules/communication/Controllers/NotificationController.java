@@ -14,7 +14,7 @@ import tn.esprit.disasteraidbackend.modules.communication.Services.NotificationS
 import java.util.List;
 
 @RestController
-@RequestMapping("/communication/notifications")
+@RequestMapping("/api/communication/notifications")
 @CrossOrigin("*")
 @Tag(name = "Notification", description = "Notification management")
 public class NotificationController {

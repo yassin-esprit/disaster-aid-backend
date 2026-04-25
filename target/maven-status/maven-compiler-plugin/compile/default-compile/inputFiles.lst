@@ -110,7 +110,6 @@ D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\modules\commu
 D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\modules\identity\DTOs\UpdateMyProfileDTO.java
 D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\modules\evacuation\repositories\RouteCheckpointRepository.java
 D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\modules\sensor\services\SensorService.java
-D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\config\WebConfig.java
 D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\modules\communication\Controllers\NotificationPreferenceController.java
 D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\modules\communication\Controllers\TypingController.java
 D:\esprit\PI\Dev\M2&M12\src\main\java\tn\esprit\disasteraidbackend\statistics\StatisticsRepository.java

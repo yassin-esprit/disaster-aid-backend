@@ -83,7 +83,6 @@ tn\esprit\disasteraidbackend\modules\communication\Services\AiPredictionServiceI
 tn\esprit\disasteraidbackend\modules\sensor\entities\Alert$AlertStatus.class
 tn\esprit\disasteraidbackend\modules\identity\Controllers\PasswordResetController.class
 tn\esprit\disasteraidbackend\modules\identity\DTOs\RoleRequestDTO.class
-tn\esprit\disasteraidbackend\config\WebConfig.class
 tn\esprit\disasteraidbackend\modules\evacuation\entities\EvacuationRoute.class
 tn\esprit\disasteraidbackend\modules\identity\Mappers\RoleMapper.class
 tn\esprit\disasteraidbackend\modules\sensor\entities\Sensor$SensorStatus.class

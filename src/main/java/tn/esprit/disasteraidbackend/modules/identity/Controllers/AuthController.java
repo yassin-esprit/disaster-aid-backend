@@ -14,7 +14,7 @@ import tn.esprit.disasteraidbackend.modules.identity.DTOs.UserRequestDTO;
 import tn.esprit.disasteraidbackend.modules.identity.Services.AuthService;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
 @CrossOrigin("*")
 @Tag(name = "Authentication", description = "Authentication management")
 public class AuthController {
