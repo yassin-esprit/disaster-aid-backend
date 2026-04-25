@@ -55,6 +55,7 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+
                                 // Add both with and without /api prefix
                                 "/api/auth/login",
                                 "/api/auth/register",
