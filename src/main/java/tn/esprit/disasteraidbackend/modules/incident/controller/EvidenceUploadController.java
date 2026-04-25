@@ -21,8 +21,11 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1/evidences/uploads")
+@RequestMapping("/api/evidences/uploads")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:4200")
+
+
 public class EvidenceUploadController {
 
     private final FileStorageService fileStorageService;

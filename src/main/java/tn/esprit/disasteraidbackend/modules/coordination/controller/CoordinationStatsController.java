@@ -8,7 +8,7 @@ import tn.esprit.disasteraidbackend.modules.coordination.dto.CoordinationStatsDt
 import tn.esprit.disasteraidbackend.modules.coordination.service.CoordinationStatsService;
 
 @RestController
-@RequestMapping("/api/v1/coordination")
+@RequestMapping("/api/coordination")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:4200")
 public class CoordinationStatsController {

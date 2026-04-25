@@ -13,7 +13,7 @@ import tn.esprit.disasteraidbackend.modules.communication.Services.ConversationS
 import java.util.List;
 
 @RestController
-@RequestMapping("/communication/conversations")
+@RequestMapping("/api/communication/conversations")
 @CrossOrigin("*")
 @Tag(name = "Conversation", description = "Conversation management")
 public class ConversationController {

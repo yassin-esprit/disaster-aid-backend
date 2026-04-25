@@ -32,14 +32,11 @@ public class SecurityConfig {
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
-    /**
-     * Exclut complètement /uploads/** de la chaîne Spring Security.
-     * Les fichiers statiques (photos de profil) sont ainsi accessibles
-     * sans authentification, sans redirection vers /login.
-     */
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/uploads/**");
+        return (web) -> web.ignoring().requestMatchers(
+                "/uploads/**"
+        );
     }
 
     @Bean
@@ -49,17 +46,31 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Change to STATELESS for API
                 )
+
+                // Disable form login to prevent redirects
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+                                // Add both with and without /api prefix
+                                "/api/auth/login",
+                                "/api/auth/register",
+                                "/api/auth/logout",
+                                "/api/auth/forgot-password",
+                                "/api/auth/verify-reset-code",
+                                "/api/auth/reset-password",
+
+                                // Also keep the old paths for compatibility
                                 "/auth/login",
                                 "/auth/register",
                                 "/auth/logout",
                                 "/auth/forgot-password",
                                 "/auth/verify-reset-code",
                                 "/auth/reset-password",
+
                                 "/uploads/**",
                                 "/oauth2/**",
                                 "/login/oauth2/**",

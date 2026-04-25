@@ -11,7 +11,7 @@ import tn.esprit.disasteraidbackend.modules.incident.service.ReportEvidenceServi
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/evidences")
+@RequestMapping("/api/evidences")
 @CrossOrigin(origins = "http://localhost:4200")
 @RequiredArgsConstructor
 public class ReportEvidenceController {

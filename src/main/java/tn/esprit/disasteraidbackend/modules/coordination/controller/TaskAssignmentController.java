@@ -12,7 +12,7 @@ import tn.esprit.disasteraidbackend.modules.coordination.service.TaskAssignmentS
 import java.util.List;
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
-@RequestMapping("/api/v1/assignments")
+@RequestMapping("/api/assignments")
 @RequiredArgsConstructor
 public class TaskAssignmentController {
 
