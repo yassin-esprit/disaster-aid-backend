@@ -17,7 +17,7 @@ import tn.esprit.disasteraidbackend.modules.identity.Services.UserService;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200", allowedHeaders = "*", allowCredentials = "true")
+@CrossOrigin(originPatterns = "http://localhost:4200", allowCredentials = "true")
 @RestController
 @RequestMapping("/api/identity-access/users")
 @Tag(name = "User", description = "User management")

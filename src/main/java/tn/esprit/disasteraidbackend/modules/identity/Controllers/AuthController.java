@@ -15,7 +15,8 @@ import tn.esprit.disasteraidbackend.modules.identity.Services.AuthService;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin("*")
+@CrossOrigin(originPatterns = "http://localhost:4200", allowCredentials = "true")
+
 @Tag(name = "Authentication", description = "Authentication management")
 public class AuthController {
 

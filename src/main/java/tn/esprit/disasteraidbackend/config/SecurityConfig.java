@@ -43,24 +43,11 @@ public class SecurityConfig {
      * Les fichiers statiques (photos de profil) sont ainsi accessibles
      * sans authentification, sans redirection vers /login.
      */
-
-    @Bean
-    @Primary
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:4200")); // your frontend origin
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/uploads/**");
+        return (web) -> web.ignoring().requestMatchers(
+                "/uploads/**"
+        );
     }
 
     @Bean
@@ -70,25 +57,40 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
 
                 .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Change to STATELESS for API
                 )
+
+                // Disable form login to prevent redirects
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
 
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
+
+                                // Add both with and without /api prefix
                                 "/api/auth/login",
                                 "/api/auth/register",
                                 "/api/auth/logout",
                                 "/api/auth/forgot-password",
                                 "/api/auth/verify-reset-code",
                                 "/api/auth/reset-password",
-                                "/api/uploads/**",
-                                "/api/oauth2/**",
-                                "/api/login/oauth2/**",
-                                "/api/login/**",
-                                "/api/ws-chat/**",
-                                "/api/v3/api-docs/**",
-                                "/api/swagger-ui/**",
-                                "/api/swagger-ui.html"
+
+                                // Also keep the old paths for compatibility
+                                "/auth/login",
+                                "/auth/register",
+                                "/auth/logout",
+                                "/auth/forgot-password",
+                                "/auth/verify-reset-code",
+                                "/auth/reset-password",
+
+                                "/uploads/**",
+                                "/oauth2/**",
+                                "/login/oauth2/**",
+                                "/login/**",
+                                "/ws-chat/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
