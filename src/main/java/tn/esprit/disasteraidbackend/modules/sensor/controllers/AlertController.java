@@ -5,6 +5,7 @@ import tn.esprit.disasteraidbackend.modules.sensor.entities.Alert;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.disasteraidbackend.modules.sensor.services.AlertService;
 
@@ -18,12 +19,15 @@ public class AlertController {
 
     private final AlertService alertService;
 
+    /** Only admins can create alerts */
     @PostMapping
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'ORG_ADMIN', 'AGENCY_ADMIN')")
     public ResponseEntity<AlertDTO> createAlert(@RequestBody AlertDTO alertDTO) {
         AlertDTO created = alertService.createAlert(alertDTO);
         return new ResponseEntity<>(created, HttpStatus.CREATED);
     }
 
+    /** Any authenticated user can view a single alert */
     @GetMapping("/{id}")
     public ResponseEntity<AlertDTO> getAlertById(@PathVariable Integer id) {
         return alertService.getAlertById(id)
@@ -31,6 +35,7 @@ public class AlertController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    /** Any authenticated user can list alerts */
     @GetMapping
     public ResponseEntity<List<AlertDTO>> getAllAlerts() {
         return new ResponseEntity<>(alertService.getAllAlerts(), HttpStatus.OK);
@@ -56,7 +61,9 @@ public class AlertController {
         return new ResponseEntity<>(alertService.getAlertsIssuedAfter(date), HttpStatus.OK);
     }
 
+    /** Only admins can update alerts */
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'ORG_ADMIN', 'AGENCY_ADMIN')")
     public ResponseEntity<AlertDTO> updateAlert(@PathVariable Integer id, @RequestBody AlertDTO alertDTO) {
         try {
             AlertDTO updated = alertService.updateAlert(id, alertDTO);
@@ -66,7 +73,9 @@ public class AlertController {
         }
     }
 
+    /** Only admins can resolve alerts */
     @PatchMapping("/{id}/resolve")
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'ORG_ADMIN', 'AGENCY_ADMIN')")
     public ResponseEntity<AlertDTO> resolveAlert(@PathVariable Integer id) {
         try {
             AlertDTO resolved = alertService.resolveAlert(id);
@@ -75,7 +84,10 @@ public class AlertController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+
+    /** Only admins can delete alerts */
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('PLATFORM_ADMIN', 'ORG_ADMIN', 'AGENCY_ADMIN')")
     public ResponseEntity<Void> deleteAlert(@PathVariable Integer id) {
         try {
             alertService.deleteAlert(id);
