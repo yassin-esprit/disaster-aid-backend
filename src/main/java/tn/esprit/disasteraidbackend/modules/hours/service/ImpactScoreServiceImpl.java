@@ -61,7 +61,7 @@ public class ImpactScoreServiceImpl implements ImpactScoreService {
             record.getVolunteerId(), rawScore, multiplier, finalScore);
 
         // ✅ After saving the score, check if new badges should be awarded
-        // autoBadgeService.checkAndAwardBadges(saved);
+        autoBadgeService.checkAndAwardBadges(saved);
 
         return saved;
     }
