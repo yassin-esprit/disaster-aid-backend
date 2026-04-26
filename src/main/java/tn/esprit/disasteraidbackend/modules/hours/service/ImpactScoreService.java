@@ -18,7 +18,7 @@ public interface ImpactScoreService {
      *
      * Confidence multiplier:
      *   VERIFIED   → ×1.0  (full score)
-     *   CALIBRATED → ×0.8  (80%)
+     *   UNVERIFIED → ×0  (0%)
      *   ESTIMATED  → ×0.5  (50% — unconfirmed data)
      */
     ImpactRecord calculateForRecord(ImpactRecord record);

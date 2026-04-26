@@ -28,7 +28,7 @@ public class ImpactScoreServiceImpl implements ImpactScoreService {
 
     // ── Confidence multipliers ────────────────────────────────────────────────
     private static final double MULTIPLIER_VERIFIED   = 1.0;
-    private static final double MULTIPLIER_CALIBRATED = 0.8;
+    private static final double MULTIPLIER_UNVERIFIED = 0.001;
     private static final double MULTIPLIER_ESTIMATED  = 0.5;
 
     @Override
@@ -61,7 +61,7 @@ public class ImpactScoreServiceImpl implements ImpactScoreService {
             record.getVolunteerId(), rawScore, multiplier, finalScore);
 
         // ✅ After saving the score, check if new badges should be awarded
-        autoBadgeService.checkAndAwardBadges(saved);
+        // autoBadgeService.checkAndAwardBadges(saved);
 
         return saved;
     }
@@ -88,7 +88,7 @@ public class ImpactScoreServiceImpl implements ImpactScoreService {
         if (level == null) return MULTIPLIER_ESTIMATED;
         return switch (level) {
             case VERIFIED   -> MULTIPLIER_VERIFIED;
-            case CALIBRATED -> MULTIPLIER_CALIBRATED;
+            case UNVERIFIED -> MULTIPLIER_UNVERIFIED;
             case ESTIMATED  -> MULTIPLIER_ESTIMATED;
         };
     }
