@@ -36,5 +36,9 @@ public class ImpactRecord {
     @Enumerated(EnumType.STRING)
     private ConfidenceLevel confidenceLevel;
 
+    // ── Impact Score (calculated automatically by scheduler) ──────────────
+    @Column(nullable = false)
+    private Double impactScore = 0.0;
+
     private LocalDateTime lastCalculatedAt;
 }

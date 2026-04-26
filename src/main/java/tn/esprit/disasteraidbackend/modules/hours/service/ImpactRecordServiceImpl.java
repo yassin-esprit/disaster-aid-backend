@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class ImpactRecordServiceImpl implements ImpactRecordService {
 
     private final ImpactRecordRepository impactRecordRepository;
+    private final ImpactScoreService impactScoreService;   // ← injected
 
     // ── Mapping helpers ──────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ public class ImpactRecordServiceImpl implements ImpactRecordService {
                 .wasteRemovedKg(request.getWasteRemovedKg())
                 .hoursOfTutoring(request.getHoursOfTutoring())
                 .confidenceLevel(request.getConfidenceLevel())
+                .impactScore(0.0)
                 .lastCalculatedAt(LocalDateTime.now())
                 .build();
     }
@@ -44,6 +46,7 @@ public class ImpactRecordServiceImpl implements ImpactRecordService {
         response.setWasteRemovedKg(r.getWasteRemovedKg());
         response.setHoursOfTutoring(r.getHoursOfTutoring());
         response.setConfidenceLevel(r.getConfidenceLevel());
+        response.setImpactScore(r.getImpactScore());          // ← new field
         response.setLastCalculatedAt(r.getLastCalculatedAt());
         return response;
     }
@@ -53,6 +56,8 @@ public class ImpactRecordServiceImpl implements ImpactRecordService {
     @Override
     public ImpactRecordResponse createImpactRecord(ImpactRecordRequest request) {
         ImpactRecord saved = impactRecordRepository.save(toEntity(request));
+        // Calculate score immediately after creation
+        saved = impactScoreService.calculateForRecord(saved);
         return toResponse(saved);
     }
 
@@ -88,8 +93,9 @@ public class ImpactRecordServiceImpl implements ImpactRecordService {
         r.setWasteRemovedKg(request.getWasteRemovedKg());
         r.setHoursOfTutoring(request.getHoursOfTutoring());
         r.setConfidenceLevel(request.getConfidenceLevel());
-        r.setLastCalculatedAt(LocalDateTime.now());
-        return toResponse(impactRecordRepository.save(r));
+        // Recalculate score immediately after update
+        r = impactScoreService.calculateForRecord(r);
+        return toResponse(r);
     }
 
     @Override

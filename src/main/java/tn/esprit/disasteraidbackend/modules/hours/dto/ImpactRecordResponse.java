@@ -16,5 +16,9 @@ public class ImpactRecordResponse {
     private Float wasteRemovedKg;
     private Float hoursOfTutoring;
     private ConfidenceLevel confidenceLevel;
+
+    // ── Calculated automatically by ImpactScoreScheduler ─────────────────
+    private Double impactScore;
+
     private LocalDateTime lastCalculatedAt;
 }
