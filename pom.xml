@@ -18,7 +18,7 @@
         <java.version>17</java.version>
         <jjwt.version>0.12.7</jjwt.version>
         <jts.version>1.19.0</jts.version>
-        <springdoc.version>2.6.0</springdoc.version>
+        <springdoc.version>2.5.0</springdoc.version>
     </properties>
 
     <dependencies>
