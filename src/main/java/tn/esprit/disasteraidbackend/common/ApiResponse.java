@@ -1,15 +1,14 @@
 package tn.esprit.disasteraidbackend.common;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-
 public class ApiResponse<T> {
 
     private boolean success;
     private String message;
     private T data;
+
     public ApiResponse() {
     }
 
@@ -18,6 +17,7 @@ public class ApiResponse<T> {
         this.message = message;
         this.data = data;
     }
+
     public static <T> ApiResponse<T> ok(T data) {
         return new ApiResponse<T>(true, "OK", data);
     }

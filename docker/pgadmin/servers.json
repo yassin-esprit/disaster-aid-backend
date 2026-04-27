@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Disaster Aid (Docker)",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "disaster_aid",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    }
+  }
+}

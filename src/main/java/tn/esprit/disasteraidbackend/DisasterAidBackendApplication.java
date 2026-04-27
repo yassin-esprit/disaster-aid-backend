@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableCaching
 public class DisasterAidBackendApplication {
     public static void main(String[] args) {
+        DatabaseBootstrap.ensureDatabaseExists();
         SpringApplication.run(DisasterAidBackendApplication.class, args);
     }
 
