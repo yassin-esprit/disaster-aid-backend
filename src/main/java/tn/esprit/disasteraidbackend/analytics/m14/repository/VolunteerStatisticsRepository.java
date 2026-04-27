@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import tn.esprit.disasteraidbackend.analytics.m14.entity.VolunteerStatistics;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface VolunteerStatisticsRepository extends JpaRepository<VolunteerStatistics, Integer> {
@@ -16,6 +17,6 @@ public interface VolunteerStatisticsRepository extends JpaRepository<VolunteerSt
                    coalesce(avg(vs.churnProbability), 0)
             from VolunteerStatistics vs
             """)
-    Object[] aggregateGlobalKpis();
+    List<Object[]> aggregateGlobalKpis();
 }
 

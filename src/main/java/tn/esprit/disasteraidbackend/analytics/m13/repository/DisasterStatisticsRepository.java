@@ -21,6 +21,6 @@ public interface DisasterStatisticsRepository extends JpaRepository<DisasterStat
                    coalesce(avg(ds.avgResponseTimeMin), 0)
             from DisasterStatistics ds
             """)
-    Object[] aggregateGlobalKpis();
+    List<Object[]> aggregateGlobalKpis();
 }
 

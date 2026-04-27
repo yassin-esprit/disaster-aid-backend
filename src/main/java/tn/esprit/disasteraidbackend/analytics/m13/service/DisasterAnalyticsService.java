@@ -29,7 +29,8 @@ public class DisasterAnalyticsService {
     }
 
     public DisasterAnalyticsReportDto getGlobalReport() {
-        Object[] row = disasterStatisticsRepository.aggregateGlobalKpis();
+        List<Object[]> results = disasterStatisticsRepository.aggregateGlobalKpis();
+        Object[] row = results.isEmpty() ? new Object[5] : results.get(0);
         return new DisasterAnalyticsReportDto(
                 toLong(row[0]),
                 toLong(row[1]),

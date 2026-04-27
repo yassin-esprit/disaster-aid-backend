@@ -28,7 +28,8 @@ public class VolunteerAnalyticsService {
     }
 
     public VolunteerAnalyticsReportDto getGlobalReport(double highRiskThreshold) {
-        Object[] row = volunteerStatisticsRepository.aggregateGlobalKpis();
+        List<Object[]> results = volunteerStatisticsRepository.aggregateGlobalKpis();
+        Object[] row = results.isEmpty() ? new Object[3] : results.get(0);
         return new VolunteerAnalyticsReportDto(
                 toDouble(row[0]),
                 toLong(row[1]),

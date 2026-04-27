@@ -1,5 +1,8 @@
 package tn.esprit.disasteraidbackend.analytics.m13;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,7 +35,7 @@ class DisasterAnalyticsServiceIntegrationTest {
     @Test
     void shouldBuildGlobalReportFromStoredRecords() {
         when(disasterStatisticsRepository.aggregateGlobalKpis())
-                .thenReturn(new Object[]{8L, 5L, 4L, 3L, 18.5D});
+                .thenReturn(Arrays.<Object[]>asList(new Object[]{8L, 5L, 4L, 3L, 18.5D}));
         when(auditLogRepository.count()).thenReturn(1L);
         when(predictiveModelRepository.countByIsActiveTrue()).thenReturn(1L);
 
