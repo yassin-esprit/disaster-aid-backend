@@ -8,7 +8,7 @@ import org.locationtech.jts.geom.Polygon;
 
 import java.time.LocalDateTime;
 
-@Entity
+@Entity(name = "SensorWarning")
 @Table(name = "alerts")
 @Getter
 @Setter

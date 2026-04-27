@@ -13,7 +13,7 @@ import tn.esprit.disasteraidbackend.common.ApiResponse;
 
 import java.util.List;
 
-@RestController
+@RestController("alertApiController")
 @RequestMapping("/api/alerts")
 public class AlertController {
 

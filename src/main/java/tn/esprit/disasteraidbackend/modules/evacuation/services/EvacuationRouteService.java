@@ -5,7 +5,7 @@ import tn.esprit.disasteraidbackend.modules.evacuation.dto.EvacuationRouteDTO;
 import tn.esprit.disasteraidbackend.modules.evacuation.entities.EvacuationRoute;
 import tn.esprit.disasteraidbackend.modules.evacuation.repositories.EvacuationRouteRepository;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.Alert;
-import tn.esprit.disasteraidbackend.modules.sensor.repositories.AlertRepository;
+import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorAlertRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class EvacuationRouteService {
 
     private final EvacuationRouteRepository evacuationRouteRepository;
-    private final AlertRepository alertRepository;
+    private final SensorAlertRepository alertRepository;
     private final OsrmRouteService osrmRouteService;
 
     public EvacuationRouteDTO createRoute(EvacuationRouteDTO routeDTO) {

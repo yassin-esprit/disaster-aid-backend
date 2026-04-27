@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public interface StatisticsRepository extends JpaRepository<Alert, Integer> {
 
-    @Query("SELECT a.disasterType, COUNT(a) FROM Alert a " +
+    @Query("SELECT a.disasterType, COUNT(a) FROM SensorWarning a " +
             "WHERE (:from IS NULL OR a.issuedAt >= :from) " +
             "AND   (:to   IS NULL OR a.issuedAt <= :to) " +
             "GROUP BY a.disasterType")
@@ -20,10 +20,10 @@ public interface StatisticsRepository extends JpaRepository<Alert, Integer> {
             @Param("from") LocalDateTime from,
             @Param("to")   LocalDateTime to);
 
-    @Query("SELECT a.status, COUNT(a) FROM Alert a GROUP BY a.status")
+    @Query("SELECT a.status, COUNT(a) FROM SensorWarning a GROUP BY a.status")
     List<Object[]> countByStatus();
 
-    @Query("SELECT a.severity, COUNT(a) FROM Alert a GROUP BY a.severity")
+    @Query("SELECT a.severity, COUNT(a) FROM SensorWarning a GROUP BY a.severity")
     List<Object[]> countBySeverity();
 
     @Query("SELECT sd.sensor.id, AVG(sd.value) FROM SensorData sd " +
@@ -38,7 +38,7 @@ public interface StatisticsRepository extends JpaRepository<Alert, Integer> {
     @Query("SELECT er.status, COUNT(er) FROM EvacuationRoute er GROUP BY er.status")
     List<Object[]> routeCountByStatus();
 
-    @Query("SELECT COUNT(a) FROM Alert a WHERE a.issuedAt >= :since")
+    @Query("SELECT COUNT(a) FROM SensorWarning a WHERE a.issuedAt >= :since")
     long countAlertsAfter(@Param("since") LocalDateTime since);
 
     @Query("SELECT s.status, COUNT(s) FROM Sensor s GROUP BY s.status")

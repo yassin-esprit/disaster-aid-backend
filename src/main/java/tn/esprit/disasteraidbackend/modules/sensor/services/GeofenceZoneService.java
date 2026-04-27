@@ -4,7 +4,7 @@ import tn.esprit.disasteraidbackend.common.mapper.DTOMapper;
 import tn.esprit.disasteraidbackend.modules.sensor.dto.GeofenceZoneDTO;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.*;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.GeofenceZoneRepository;
-import tn.esprit.disasteraidbackend.modules.sensor.repositories.AlertRepository;
+import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorAlertRepository;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 public class GeofenceZoneService {
 
     private final GeofenceZoneRepository geofenceZoneRepository;
-    private final AlertRepository alertRepository;
+    private final SensorAlertRepository alertRepository;
     private final GeometryFactory geometryFactory;
 
     public GeofenceZoneDTO createZone(GeofenceZoneDTO zoneDTO) {

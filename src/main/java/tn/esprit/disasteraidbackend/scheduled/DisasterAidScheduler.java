@@ -9,8 +9,8 @@ import org.springframework.transaction.annotation.Transactional;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.Alert;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.GeofenceZone;
 import tn.esprit.disasteraidbackend.modules.sensor.entities.Sensor;
-import tn.esprit.disasteraidbackend.modules.sensor.repositories.AlertRepository;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.GeofenceZoneRepository;
+import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorAlertRepository;
 import tn.esprit.disasteraidbackend.modules.sensor.repositories.SensorRepository;
 
 import java.time.LocalDateTime;
@@ -24,7 +24,7 @@ import java.util.Map;
 public class DisasterAidScheduler {
 
     private final SensorRepository       sensorRepository;
-    private final AlertRepository        alertRepository;
+    private final SensorAlertRepository alertRepository;
     private final GeofenceZoneRepository geofenceZoneRepository;
     private final SimpMessagingTemplate  messagingTemplate;
 

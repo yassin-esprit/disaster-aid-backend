@@ -24,7 +24,7 @@ public class SensorDataService {
     private final SensorDataRepository sensorDataRepository;
     private final SensorRepository sensorRepository;
     private final AlertThresholdRepository alertThresholdRepository;
-    private final AlertService alertService;
+    private final SensorAlertService alertService;
 
     public SensorDataDTO recordReading(SensorDataDTO readingDTO) {
 
