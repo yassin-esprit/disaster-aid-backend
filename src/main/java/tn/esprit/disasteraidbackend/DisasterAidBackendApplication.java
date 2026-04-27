@@ -12,4 +12,5 @@ public class DisasterAidBackendApplication {
     public static void main(String[] args) {
         SpringApplication.run(DisasterAidBackendApplication.class, args);
     }
+
 }
