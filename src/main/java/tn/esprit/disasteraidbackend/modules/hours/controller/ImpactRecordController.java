@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/api/v1/impact-records")
+@RequestMapping("/api/impact-records")
 @RequiredArgsConstructor
 public class ImpactRecordController {
 

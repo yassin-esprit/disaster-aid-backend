@@ -13,7 +13,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/api/v1/challenges")
+@RequestMapping("/api/challenges")
 @RequiredArgsConstructor
 public class ChallengeController {
 

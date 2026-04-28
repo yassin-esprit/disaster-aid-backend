@@ -12,7 +12,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/api/v1/volunteer-achievements")
+@RequestMapping("/api/volunteer-achievements")
 @RequiredArgsConstructor
 public class VolunteerAchievementController {
 

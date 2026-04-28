@@ -25,7 +25,6 @@ public class Challenge {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // e.g. "HOURS", "DISASTER_RESPONSES", "PEOPLE_HELPED"
     @Column(nullable = false)
     private String targetMetric;
 
@@ -37,8 +36,8 @@ public class Challenge {
 
     private LocalDate endDate;
 
-    // List of volunteer user IDs who joined the challenge
-    @ElementCollection
+    // ✅ FIXED: FetchType.EAGER prevents "no Session" lazy loading error
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "challenge_participants",
             joinColumns = @JoinColumn(name = "challenge_id")

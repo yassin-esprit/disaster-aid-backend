@@ -32,8 +32,8 @@ public class Certificate {
 
     private LocalDate periodTo;
 
-    // FK → Skill IDs (Module 06 — managed separately)
-    @ElementCollection
+    // ✅ FIXED: FetchType.EAGER prevents "no Session" lazy loading error
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
             name = "certificate_skills",
             joinColumns = @JoinColumn(name = "certificate_id")

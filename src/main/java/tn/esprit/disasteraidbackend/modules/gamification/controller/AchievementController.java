@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
-@RequestMapping("/api/v1/achievements")
+@RequestMapping("/api/achievements")
 @RequiredArgsConstructor
 public class AchievementController {
 
