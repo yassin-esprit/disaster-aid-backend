@@ -1,0 +1,12 @@
+[
+  "volunteer_id",
+  "opportunity_id",
+  "required_proficiency",
+  "volunteer_proficiency",
+  "skill_match",
+  "proficiency_gap",
+  "endorsement_count",
+  "is_verified",
+  "volunteer_skills_count",
+  "days_until_opportunity"
+]

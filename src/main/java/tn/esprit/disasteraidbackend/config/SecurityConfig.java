@@ -1,8 +1,9 @@
 package tn.esprit.disasteraidbackend.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -18,10 +19,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import tn.esprit.disasteraidbackend.modules.identity.Security.JwtAuthenticationFilter;
 import tn.esprit.disasteraidbackend.modules.identity.Security.OAuth2LoginSuccessHandler;
-
-import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
@@ -91,7 +91,17 @@ public class SecurityConfig {
                                 "/ws-chat/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/api/v1/skills/**",
+                                "/api/v1/volunteer-skills/**",
+
+        // M07 - Opportunities
+                                 "/api/v1/opportunities/**",
+                                 "/api/v1/applications/**",
+
+        // Uploads
+                                 "/api/v1/uploads/**"
+
                         ).permitAll()
                         .anyRequest().authenticated()
                 )

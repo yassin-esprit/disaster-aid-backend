@@ -293,7 +293,6 @@ tn\esprit\disasteraidbackend\modules\sensor\dto\AlertThresholdDTO.class
 tn\esprit\disasteraidbackend\config\SecurityConfig.class
 tn\esprit\disasteraidbackend\alert\controller\RuleEngineController.class
 tn\esprit\disasteraidbackend\modules\identity\Security\JwtAuthenticationFilter.class
-tn\esprit\disasteraidbackend\config\CorsConfig.class
 tn\esprit\disasteraidbackend\modules\incident\controller\ReportEvidenceController.class
 tn\esprit\disasteraidbackend\modules\gamification\service\ChallengeServiceImpl.class
 tn\esprit\disasteraidbackend\alert\entity\SlaMetric$SlaStatus.class
