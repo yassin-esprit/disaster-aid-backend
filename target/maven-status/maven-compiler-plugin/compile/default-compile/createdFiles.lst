@@ -55,6 +55,7 @@ tn\esprit\disasteraidbackend\modules\reviews\dto\ReviewCreateDto.class
 tn\esprit\disasteraidbackend\alert\entity\SlaMetric.class
 tn\esprit\disasteraidbackend\modules\gamification\dto\LeaderboardResponse.class
 tn\esprit\disasteraidbackend\modules\gamification\entity\Achievement$AchievementBuilder.class
+tn\esprit\disasteraidbackend\reports\controller\ReportController.class
 tn\esprit\disasteraidbackend\modules\sensor\controllers\GeofenceZoneController.class
 tn\esprit\disasteraidbackend\modules\hours\service\ImpactScoreScheduler.class
 tn\esprit\disasteraidbackend\alert\entity\AlertRule$RuleAction.class
